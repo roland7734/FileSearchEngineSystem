@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(include)
 
 add_executable(backend
+        src/main.cpp
         src/database/database.cpp
         src/indexer/file-crawler.cpp
         src/indexer/file-ignorer.cpp
