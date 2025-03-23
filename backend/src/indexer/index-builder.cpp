@@ -6,10 +6,10 @@
 #include "config/config.hpp"
 #include <iostream>
 
-IndexBuilder::IndexBuilder(FileCrawler* crawler, InsertService* insertService)
+Indexer::Indexer(FileCrawler* crawler, InsertService* insertService)
         : crawler(crawler), insertService(insertService) {}
 
-void IndexBuilder::indexTextFiles() {
+void Indexer::indexTextFiles() {
     std::vector<File> files = crawler->getFilesRecursively();
     std::vector<File> batch;
 

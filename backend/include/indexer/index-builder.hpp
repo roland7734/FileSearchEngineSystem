@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-class IndexBuilder {
+class Indexer {
 public:
-    IndexBuilder(FileCrawler* crawler, InsertService* insertService);
+    Indexer(FileCrawler* crawler, InsertService* insertService);
     void indexTextFiles();
 
 
