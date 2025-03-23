@@ -56,27 +56,3 @@ std::vector<File> FileCrawler::getFilesRecursively() const {
 
     return files;
 }
-
-
-std::vector<File> FileCrawler::getFilesFromDirectory(const std::string& directoryPath) {
-    std::vector<File> files;
-
-    try {
-        for (const auto& entry : fs::directory_iterator(directoryPath)) {
-            if (fs::is_regular_file(entry.status())) {
-                std::string filePath = entry.path().string();
-                size_t fileSize = fs::file_size(entry.path());
-
-                auto ftime = fs::last_write_time(entry.path());
-                std::time_t createdAt = std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(ftime));
-
-                files.emplace_back(filePath, fileSize, createdAt);
-            }
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error reading directory: " << e.what() << std::endl;
-    }
-
-    return files;
-}
-

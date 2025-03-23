@@ -13,8 +13,6 @@ public:
     FileCrawler(FileIgnorer* ignorer, const std::string& basePath);
 
     std::vector<File> getFilesRecursively() const;
-    std::vector<File> getFilesFromDirectory(const std::string& directoryPath);
-    std::string getBasePath() const;
 
 private:
     FileIgnorer* ignorer;
