@@ -11,7 +11,7 @@
 class FileCrawler {
 public:
     FileCrawler(FileIgnorer* ignorer, const std::string& basePath);
-
+    std::string FileCrawler::getBasePath() const;
     std::vector<File> getFilesRecursively() const;
 
 private:

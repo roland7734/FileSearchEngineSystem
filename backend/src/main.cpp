@@ -8,6 +8,7 @@
 #include "indexer/index-builder.hpp"
 #include "model/file.hpp"
 #include "service/search-service.hpp"
+#include "logger/logger.hpp"
 
 
 void enableVTMode() {
@@ -131,7 +132,7 @@ int getValidChoice() {
 
     while (true) {
         std::cout << "\nChoose an operation:\n";
-        std::cout << "1. Crawl (Insert files into the database)\n";
+        std::cout << "1. Crawl and Insert Files into the Database\n";
         std::cout << "2. Search for a keyword in file names\n";
         std::cout << "3. Search for a word in text content\n";
         std::cout << "4. Search for multiple words in text content\n";
@@ -177,9 +178,10 @@ int main() {
                 break;
             case 5:
                 std::cout << "Exiting the program.\n";
+                db.~Database();
                 return 0;
             default:
-                std::cout << "Invalid choice, please try again.\n";
+                std::cout << "Invalid command. Please enter a valid number (1-5).\n";
         }
     }
 

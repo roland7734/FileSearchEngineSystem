@@ -12,7 +12,7 @@ namespace Config {
     inline constexpr int DB_PORT = 5432;
     inline constexpr char DB_NAME[] = "file_system";
     inline constexpr char DB_USER[] = "postgres";
-    inline constexpr char DB_PASSWORD[] = "password";
+    inline constexpr char DB_PASSWORD[] = "postgreSQL";
 
     // Crawler Settings
     inline constexpr int BATCH_SIZE = 100;

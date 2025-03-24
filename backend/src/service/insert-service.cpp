@@ -4,6 +4,7 @@
 #include "service/insert-service.hpp"
 #include "database/database.hpp"
 #include "model/file.hpp"
+#include "logger/logger.hpp"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -13,7 +14,7 @@ InsertService::InsertService(Database* db) : db(db) {}
 void InsertService::insertBatchToDatabase(const std::vector<File>& files) {
     try {
         if (files.empty()) {
-            std::cerr << "No files to insert." << std::endl;
+            logger.logMessage("No files to insert.");
             return;
         }
 
@@ -63,9 +64,9 @@ void InsertService::insertBatchToDatabase(const std::vector<File>& files) {
         txn.exec(query);
         txn.commit();
 
-        std::cout << "Batch insert of " << files.size() << " files completed successfully!" << std::endl;
+        logger.logMessage("Batch insert of " + std::to_string(files.size()) + " files completed successfully.");
     } catch (const std::exception& e) {
-        std::cerr << "Error during batch insert: " << e.what() << std::endl;
+        logger.logMessage("Error during batch insert: " + std::string(e.what()));
     }
 }
 

@@ -2,6 +2,7 @@
 #include "service/search-service.hpp"
 #include "database/database.hpp"
 #include "model/file.hpp"
+#include "logger/logger.hpp"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -12,6 +13,14 @@ std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
     std::vector<File> results;
 
     pqxx::connection *conn = db->getConnection();
+    if (!conn || !conn->is_open()) {
+        logger.logMessage("Database connection is not open during searchFileNames.");
+        return results;
+    }
+
+    logger.logMessage("Executing file name search with keyword: " + keyword);
+    auto start = std::chrono::high_resolution_clock::now();
+
     pqxx::work txn(*conn);
 
     std::string query = R"(SELECT path, ts_headline('simple', name, plainto_tsquery($1), 'MaxFragments=1, MaxWords=100'), LEFT(text_content, 100) AS preview
@@ -30,12 +39,17 @@ std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
 
         std::string extension = (lastDotPos != std::string::npos) ? path.substr(lastDotPos + 1) : "";
 
-
         std::string newPath = directory + row[1].c_str() + "." + extension;
         results.emplace_back(newPath, row[2].c_str());
     }
 
     txn.commit();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+    logger.logUserSearchFileName(keyword, results.size());
+    logger.logSearchPerformanceFileName(keyword, duration.count());
     return results;
 }
 
@@ -43,6 +57,14 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
     std::vector<File> results;
 
     pqxx::connection *conn = db->getConnection();
+    if (!conn || !conn->is_open()) {
+        logger.logMessage("Database connection is not open during searchTextContentBySingleWord.");
+        return results;
+    }
+
+    logger.logMessage("Executing text content search with keyword: " + text);
+    auto start = std::chrono::high_resolution_clock::now();
+
     pqxx::work txn(*conn);
 
     std::string query = R"(SELECT path, ts_headline('english', text_content, plainto_tsquery($1), 'MaxFragments=1, MaxWords=100') AS preview
@@ -55,7 +77,11 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
     for (const auto &row : res) {
         results.emplace_back(row[0].c_str(), row[1].c_str());
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
 
+    logger.logUserSearchTextContent(text, results.size());
+    logger.logSearchPerformanceTextContent(text, duration.count());
     return results;
 }
 
