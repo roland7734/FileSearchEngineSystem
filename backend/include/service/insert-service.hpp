@@ -13,8 +13,10 @@ public:
 
     bool insertBatchToDatabase(const std::vector<File>& files);
     std::string escapeString(const std::string& str);
+    std::string cleanInvalidUtf8Characters(const std::string str);
+    std::string WideToUtf8(const std::wstring& wstr);
 
-private:
+        private:
     Database* db;
 };
 

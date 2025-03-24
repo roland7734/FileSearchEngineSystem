@@ -28,16 +28,15 @@ void Indexer::indexTextFiles() {
     std::vector<File> files = crawler->getFilesRecursively();
     std::vector<File> batch;
 
-    size_t numberOfBatches = ceil(files.size()/Config::BATCH_SIZE);
+    size_t numberOfBatches = files.size() / Config::BATCH_SIZE + 1;
 
     size_t totalSize = 0;
     double maxSize = 0;
     double minSize = files.empty() ? 0 : files[0].getSize();
-
+    int indexedFiles = 0;
     int batchNumber = 0;
 
     for (const auto& file : files) {
-        batchNumber++;
         batch.push_back(file);
 
         totalSize += file.getSize();
@@ -47,28 +46,36 @@ void Indexer::indexTextFiles() {
 
 
         if (batch.size() == Config::BATCH_SIZE) {
-                if(!insertService->insertBatchToDatabase(batch))
+            batchNumber++;
+            if(!insertService->insertBatchToDatabase(batch))
                 {
                     logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
                 }
-            logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
-                batch.clear();
+            else {
+                logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
+                indexedFiles += batch.size();
+            }
+            batch.clear();
         }
     }
 
     if (!batch.empty()) {
+        batchNumber++;
         if(!insertService->insertBatchToDatabase(batch))
         {
             logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
         }
-        logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
+        else {
+            logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
+            indexedFiles += batch.size();
+        }
         batch.clear();
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    logger.logIndexedFiles(files.size());
+    logger.logIndexedFiles(indexedFiles, files.size());
     logger.logTotalIndexationTime(duration);
 
     if (!files.empty()) {

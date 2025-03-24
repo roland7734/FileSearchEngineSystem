@@ -14,7 +14,7 @@ public:
 
     void logStartCrawl(const std::string& basePath);
     void logEndCrawl(std::chrono::duration<double> totalTime);
-    void logIndexedFiles(const int indexedFilesNumber);
+    void logIndexedFiles(const int indexedFilesNumber, const int totalNumberOfd);
     void logIgnoredFiles(const int ignoredFilesNumber);
     void logTotalIndexationTime(std::chrono::duration<double> totalTime);
     void logMessage(const std::string& message);

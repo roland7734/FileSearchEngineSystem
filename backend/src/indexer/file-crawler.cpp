@@ -6,6 +6,7 @@
 #include "model/file.hpp"
 #include "config/config.hpp"
 #include "logger/logger.hpp"
+#include "utils/string-processor.hpp"
 #include <vector>
 #include <iostream>
 #include <windows.h>
@@ -35,7 +36,9 @@ std::vector<File> FileCrawler::getFilesRecursively() const {
             continue;
         }
         if (entry.is_regular_file()) {
-            std::string filePath = entry.path().string();
+            std::wstring filePathWideString = entry.path().wstring();
+
+            std::string filePath = StringProcessor::convertWideToUtf8(filePathWideString);
 
             if (ignorer && ignorer->shouldIgnore(filePath)) {
                 ++ignoredFiles;

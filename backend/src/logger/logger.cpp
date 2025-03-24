@@ -41,9 +41,9 @@ void Logger::logEndCrawl(std::chrono::duration<double> duration) {
     writeLog(oss.str());
 }
 
-void Logger::logIndexedFiles(const int indexedFilesNumber) {
+void Logger::logIndexedFiles(const int indexedFilesNumber, const int totalFiles) {
     std::ostringstream oss;
-    oss << "Number of Indexed Files in this crawling: " << indexedFilesNumber;
+    oss << "Number of Indexed Files in this crawling: " << indexedFilesNumber << " out of " << totalFiles;
     writeLog(oss.str());
 }
 

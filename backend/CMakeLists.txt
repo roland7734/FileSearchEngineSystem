@@ -20,6 +20,7 @@ add_executable(backend
         src/service/insert-service.cpp
         src/model/file.cpp
         src/logger/logger.cpp
+        src/utils/string-processor.cpp
 )
 find_package(libpqxx REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem algorithm)

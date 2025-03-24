@@ -5,6 +5,8 @@
 #include "database/database.hpp"
 #include "model/file.hpp"
 #include "logger/logger.hpp"
+#include "utils/string-processor.hpp"
+#include "config/config.hpp"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -30,8 +32,11 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
             if (i > 0) {
                 query += ", ";
             }
-            query += "('" + escapeString(file.getPath()) + "', '" + escapeString(file.getName()) +
-                    "', '" + escapeString(file.getExtension()) + "', '" + escapeString(file.getTextContent()) + "')";
+
+            std::string truncateTextContent = StringProcessor::truncateToMaxSize(file.getTextContent(), Config::MAXIMUM_CONTENT_SIZE);
+
+            query += "(" + txn.quote(escapeString(file.getPath())) + ", " + txn.quote(escapeString(file.getName())) +
+                    ", " + txn.quote(escapeString(file.getExtension())) + ", " + txn.quote(truncateTextContent) + ")";
         }
 
         query += " ON CONFLICT (path) DO UPDATE SET ";
@@ -64,7 +69,7 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
         logger.logMessage("Batch insert of " + std::to_string(files.size()) + " files completed successfully.");
         return true;
     } catch (const pqxx::sql_error& e) {
-        logger.logMessage("SQL error during batch insert: " + std::string(e.what()) + " | Query: " + e.query());
+        logger.logMessage("SQL error during batch insert: " + std::string(e.what()));
     } catch (const pqxx::broken_connection& e) {
         logger.logMessage("Database connection error: " + std::string(e.what()));
     } catch (const std::exception& e) {
@@ -82,3 +87,4 @@ std::string InsertService::escapeString(const std::string& str) {
     }
     return escapedStr;
 }
+
