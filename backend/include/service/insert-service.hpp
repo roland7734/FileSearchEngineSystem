@@ -11,7 +11,7 @@ class InsertService {
 public:
     InsertService(Database* db);
 
-    void insertBatchToDatabase(const std::vector<File>& files);
+    bool insertBatchToDatabase(const std::vector<File>& files);
     std::string escapeString(const std::string& str);
 
 private:

@@ -11,11 +11,11 @@
 
 InsertService::InsertService(Database* db) : db(db) {}
 
-void InsertService::insertBatchToDatabase(const std::vector<File>& files) {
+bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
     try {
         if (files.empty()) {
             logger.logMessage("No files to insert.");
-            return;
+            return true;
         }
 
         pqxx::connection* conn = db->getConnection();
@@ -24,30 +24,25 @@ void InsertService::insertBatchToDatabase(const std::vector<File>& files) {
         std::string query = "";
         query += "WITH inserted_files AS (";
         query += "INSERT INTO files (path, name, extension, text_content) VALUES ";
+
         for (size_t i = 0; i < files.size(); ++i) {
             const File& file = files[i];
             if (i > 0) {
                 query += ", ";
-
             }
-            query += "('";
-            query += file.getPath();
-            query += "', '";
-            query += file.getName();
-            query += "', '";
-            query += file.getExtension();
-            query += "', '";
-            query += escapeString(file.getTextContent());
-            query += "')";
-
+            query += "('" + escapeString(file.getPath()) + "', '" + escapeString(file.getName()) +
+                    "', '" + escapeString(file.getExtension()) + "', '" + escapeString(file.getTextContent()) + "')";
         }
 
-        query += " RETURNING id, path ) ";
+        query += " ON CONFLICT (path) DO UPDATE SET ";
+        query += "name = EXCLUDED.name, extension = EXCLUDED.extension, text_content = EXCLUDED.text_content";
+        query += " RETURNING id, path) ";
+
         query += "INSERT INTO file_metadata (file_id, mime_type, created_at, size) ";
 
         for (size_t i = 0; i < files.size(); ++i) {
             const File& file = files[i];
-            if(i>0) query += "UNION ALL ";
+            if (i > 0) query += " UNION ALL ";
 
             std::time_t createdAt = file.getCreatedAt();
             std::tm tm = *std::localtime(&createdAt);
@@ -55,19 +50,27 @@ void InsertService::insertBatchToDatabase(const std::vector<File>& files) {
             std::strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", &tm);
             std::string createdAtStr = timeBuffer;
 
-            query += "SELECT id, ' " + file.getMimeType() + "', "
-                     + "'"+ createdAtStr + "'::timestamp AS created_at, "
-                     + std::to_string(file.getSize()) + " AS size FROM inserted_files WHERE path = '"
-                     + escapeString(file.getPath()) + "' ";
+            query += "SELECT id, '" + escapeString(file.getMimeType()) + "', '" + createdAtStr + "'::timestamp, " + std::to_string(file.getSize());
+            query += " FROM inserted_files WHERE path = '" + escapeString(file.getPath()) + "'";
+
         }
+
+        query += " ON CONFLICT (file_id) DO UPDATE SET ";
+        query += "mime_type = EXCLUDED.mime_type, created_at = EXCLUDED.created_at, size = EXCLUDED.size";
 
         txn.exec(query);
         txn.commit();
 
         logger.logMessage("Batch insert of " + std::to_string(files.size()) + " files completed successfully.");
+        return true;
+    } catch (const pqxx::sql_error& e) {
+        logger.logMessage("SQL error during batch insert: " + std::string(e.what()) + " | Query: " + e.query());
+    } catch (const pqxx::broken_connection& e) {
+        logger.logMessage("Database connection error: " + std::string(e.what()));
     } catch (const std::exception& e) {
         logger.logMessage("Error during batch insert: " + std::string(e.what()));
     }
+    return false;
 }
 
 std::string InsertService::escapeString(const std::string& str) {
