@@ -3,15 +3,11 @@
 #include <iostream>
 #include "indexer/file-ignorer.hpp"
 
-FileIgnorer::FileIgnorer(const std::vector<std::string>& patterns) {
-    for (const auto& pattern : patterns) {
-        ignore_patterns.push_back(std::regex(pattern));
-    }
-}
+FileIgnorer::FileIgnorer(const std::vector<std::string>& patterns) : ignore_patterns(patterns) {}
 
 bool FileIgnorer::shouldIgnore(const std::string& filename) {
     for (const auto& pattern : ignore_patterns) {
-        if (std::regex_search(filename, pattern)) {
+        if (filename.find(pattern) != std::string::npos) {
             return true;
         }
     }

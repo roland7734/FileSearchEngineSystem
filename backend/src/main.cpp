@@ -48,7 +48,7 @@ std::string getBaseDirectoryFromUser() {
 std::vector<std::string> getPatternsFromUser() {
     std::vector<std::string> patterns;
     std::string pattern;
-    std::cout << "Enter file patterns to ignore (e.g., .git, node_modules) separated by spaces (enter 'done' when finished): \n";
+    std::cout << "Enter file patterns to ignore (e.g., .git, node_modules directory) separated by spaces (enter 'done' when finished): \n";
 
     while (true) {
         std::cout << "Pattern (or 'done' to finish): ";

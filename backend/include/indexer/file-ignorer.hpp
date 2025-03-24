@@ -4,7 +4,6 @@
 #define FILE_IGNORER_HPP
 
 #include <vector>
-#include <regex>
 #include <string>
 
 class FileIgnorer {
@@ -13,7 +12,7 @@ public:
     bool shouldIgnore(const std::string& filename);
 
 private:
-    std::vector<std::regex> ignore_patterns;
+    std::vector<std::string> ignore_patterns;
 };
 
 #endif  // FILE_IGNORER_HPP
