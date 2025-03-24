@@ -5,15 +5,19 @@
 
 #include <string>
 #include <unordered_set>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
 
 namespace Config {
 
     // Database Configuration
-    inline constexpr char DB_HOST[] = "localhost";
-    inline constexpr int DB_PORT = 5432;
-    inline constexpr char DB_NAME[] = "file_system";
-    inline constexpr char DB_USER[] = "postgres";
-    inline constexpr char DB_PASSWORD[] = "postgreSQL";
+    inline std::string DB_HOST;
+    inline int DB_PORT;
+    inline std::string DB_NAME;
+    inline std::string DB_USER;
+    inline std::string DB_PASSWORD;
 
     // Crawler Settings
     inline constexpr int BATCH_SIZE = 100;
@@ -29,6 +33,8 @@ namespace Config {
 
     std::string getConfigSummary();
     void logConfig();
+    void loadConfig(const std::string& configFilePath);
+
 }
 
 #endif  // CONFIG_HPP

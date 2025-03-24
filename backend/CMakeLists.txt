@@ -24,9 +24,11 @@ add_executable(backend
 )
 find_package(libpqxx REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem algorithm)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 target_link_libraries(backend PRIVATE
         libpqxx::pqxx
         Boost::filesystem
         Boost::algorithm
+        nlohmann_json::nlohmann_json
 )

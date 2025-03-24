@@ -49,6 +49,7 @@ std::string File::getExtension() const {
 
 
 void File::determineMimeType() {
+
     std::string extension = fs::path(path).extension().string();
     boost::algorithm::to_lower(extension);
 
@@ -80,10 +81,8 @@ void File::determineMimeType() {
 }
 
 void File::extractTextContent() {
-    std::string extension = fs::path(path).extension().string();
-    boost::algorithm::to_lower(extension);
 
-    if (Config::TEXT_EXTENSIONS.count(extension)) {
+    if (mimeType.find("text") != std::string::npos) {
         std::ifstream fileStream(path);
         if (fileStream) {
             std::ostringstream contentStream;

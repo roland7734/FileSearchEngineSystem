@@ -3,12 +3,14 @@
 #include <string>
 #include <windows.h>
 #include <sstream>
+#include <pqxx/pqxx>
 #include "../include/config/config.hpp"
 #include "../include/database/database.hpp"
 #include "indexer/index-builder.hpp"
 #include "model/file.hpp"
 #include "service/search-service.hpp"
 #include "logger/logger.hpp"
+#include "config/config.hpp"
 
 
 void enableVTMode() {
@@ -151,6 +153,11 @@ int getValidChoice() {
 
 int main() {
     enableVTMode();
+    std::filesystem::path current_path = std::filesystem::current_path();
+
+    // Build the full path to config.json
+    std::filesystem::path config_path = current_path / "config.json";
+    Config::loadConfig(config_path.string());
 
     std::cout << "Welcome to the File Search Engine\n";
 
