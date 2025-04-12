@@ -7,6 +7,13 @@
 SearchServiceController::SearchServiceController(SearchService* searchService) : searchService(searchService) {}
 
 void SearchServiceController::registerRoutes(httplib::Server& server) {
+    server.Options("/search", [](const httplib::Request& req, httplib::Response& res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "GET, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        res.status = 204;
+    });
+
     server.Get("/search", [this](const httplib::Request& req, httplib::Response& res) {
         try {
             std::string query = req.get_param_value("query");
@@ -24,12 +31,13 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
                     file_json["preview"] = file.getTextContent();
                     json_response["results"].push_back(file_json);
                 }
-
+                res.set_header("Access-Control-Allow-Origin", "*");
                 res.set_content(json_response.dump(), "application/json");
             } else {
                 nlohmann::json error_json;
                 error_json["error"] = "Query parameter missing.";
                 res.status = 400;
+                res.set_header("Access-Control-Allow-Origin", "*");
                 res.set_content(error_json.dump(), "application/json");
             }
         } catch (const std::exception& e) {
@@ -37,6 +45,7 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
             error_json["error"] = "Error processing the request.";
             error_json["details"] = e.what();
             res.status = 400;
+            res.set_header("Access-Control-Allow-Origin", "*");
             res.set_content(error_json.dump(), "application/json");
         }
     });

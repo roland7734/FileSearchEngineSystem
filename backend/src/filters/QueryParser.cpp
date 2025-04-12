@@ -19,12 +19,17 @@ std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& quer
 
         size_t keyStart = pos;
         size_t keyEnd = query.find(':', keyStart);
-        if (keyEnd == std::string::npos) break;
+        if (keyEnd == std::string::npos)
+            throw std::invalid_argument("No ':' character present.");
+
 
         key = query.substr(keyStart, keyEnd - keyStart);
         key = trim(key);
 
         pos = keyEnd + 1;
+        if(pos + 2 >= query.length())
+            throw std::invalid_argument("No value present for a given key.");
+
 
         size_t valueStart = pos;
 
@@ -33,6 +38,13 @@ std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& quer
             if (valueEnd == std::string::npos) {
                 throw std::invalid_argument("Unmatched quotes in query.");
             }
+
+            size_t afterQuotePos = valueEnd + 1;
+            if (afterQuotePos < query.length() && !std::isspace(query[afterQuotePos]) && query[afterQuotePos] != ':') {
+                throw std::invalid_argument("Unexpected characters after quoted value in query.");
+            }
+
+
             value = query.substr(valueStart + 1, valueEnd - valueStart - 1);
             pos = valueEnd + 1;
         } else {
@@ -40,6 +52,14 @@ std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& quer
             if (valueEnd == std::string::npos) valueEnd = query.length();
             value = query.substr(valueStart, valueEnd - valueStart);
             pos = valueEnd;
+
+            if (value.empty()) {
+                if (query[pos] == ':' || query[pos] == '"') {
+                    value = "";
+                } else if (pos < query.length() && !std::isspace(query[pos]) && query[pos] != ':') {
+                    throw std::invalid_argument("Unexpected characters after unquoted value in query.");
+                }
+            }
         }
 
         value = trim(value);
@@ -48,6 +68,8 @@ std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& quer
             filters.push_back(std::make_unique<ContentFilter>(value));
         } else if (key == "path") {
             filters.push_back(std::make_unique<PathNameFilter>(value));
+        } else {
+            throw std::invalid_argument("Unrecognized key in query: " + key);
         }
     }
 

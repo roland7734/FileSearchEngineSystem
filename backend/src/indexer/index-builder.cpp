@@ -18,10 +18,11 @@ void Indexer::indexTextFiles() {
 
     if (std::filesystem::is_regular_file(basePath)) {
         logger.logMessage("The path is a file, not a directory: \"" + basePath + "\". Indexing stopped.");
-        return;
+        throw std::runtime_error("The path is a file, not a directory: \"" + basePath + "\". Indexing stopped.");
+
     } else if (!std::filesystem::is_directory(basePath)) {
         logger.logMessage("The provided path is neither a valid directory nor a valid file: \"" + basePath+ "\". Indexing stopped.");
-        return;
+        throw std::runtime_error("The provided path is neither a valid directory nor a valid file: \"" + basePath + "\". Indexing stopped.");
     }
 
 
