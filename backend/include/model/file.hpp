@@ -18,16 +18,19 @@ public:
     size_t getSize() const;
     std::time_t getCreatedAt() const;
     std::string getMimeType() const;
+    double getScore() const;
 
 private:
     void determineMimeType();
     void extractTextContent();
+    void computeScore();
 
     std::string path;
     size_t size;
     std::time_t createdAt;
     std::string mimeType;
     std::string textContent;
+    double score;
 };
 
 #endif  // FILE_HPP

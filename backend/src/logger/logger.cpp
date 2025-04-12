@@ -95,6 +95,18 @@ void Logger::logSearchPerformanceTextContent(const std::string& searchQuery, dou
     writeLog(oss.str());
 }
 
+void Logger::logUserSearchQuery(const std::string& searchQuery, int resultsFound) {
+    std::ostringstream oss;
+    oss << "User searched for '" << searchQuery << "' in text content. Found " << resultsFound << " results.";
+    writeLog(oss.str());
+}
+void Logger::logSearchPerformanceQuery(const std::string& searchQuery, double duration) {
+    std::ostringstream oss;
+    oss << "Search for '" << searchQuery << "' in file names completed in " << duration << " seconds.";
+    writeLog(oss.str());
+}
+
+
 void Logger::logMessage(const std::string& message) {
     writeLog(message);
 }

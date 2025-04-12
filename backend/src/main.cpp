@@ -11,6 +11,9 @@
 #include "service/search-service.hpp"
 #include "logger/logger.hpp"
 #include "config/config.hpp"
+#include "filters/QueryParser.hpp"
+#include "filters/ContentFilter.hpp"
+#include "filters/PathNameFilter.hpp"
 
 
 void enableVTMode() {
@@ -128,6 +131,31 @@ void searchMultipleWordsOperation(SearchService& searchService) {
         std::cout << replaceBoldTagsWithEscapeCodes(file.getTextContent()) << "\n\n";
     }
 }
+void searchQuery(SearchService& searchService) {
+    std::string rawQuery;
+    std::cout << "Enter the query: ";
+    std::getline(std::cin, rawQuery);
+
+    auto filters = QueryParser::parse(rawQuery);
+    std::string filters_query;
+    for(const auto& filter : filters)
+    if (const auto* contentFilter = dynamic_cast<const ContentFilter*>(filter.get())) {
+        filters_query += "content:" + contentFilter->getKeyword() + " ";
+    } else if (const auto* nameFilter = dynamic_cast<const PathNameFilter*>(filter.get())) {
+        filters_query += "path:" + nameFilter->getKeyword() + " ";
+    }
+    std::cout<<filters_query;
+    auto files = searchService.searchQuery(filters);
+
+    std::cout << "Found " << files.size() << " result(s) for text content search.\n";
+
+    for (auto& file : files) {
+        std::cout << file.getPath() << "\n";
+        std::cout << "Preview:\n";
+        std::cout << file.getTextContent() << "\n\n";
+    }
+}
+
 int getValidChoice() {
     int choice;
     std::string input;
@@ -138,8 +166,9 @@ int getValidChoice() {
         std::cout << "2. Search for a keyword in file names\n";
         std::cout << "3. Search for a word in text content\n";
         std::cout << "4. Search for multiple words in text content\n";
-        std::cout << "5. Exit\n";
-        std::cout << "Enter your choice (1-5): ";
+        std::cout << "5. Search for Query\n";
+        std::cout << "6. Exit\n";
+        std::cout << "Enter your choice (1-6): ";
         std::getline(std::cin, input);
 
         std::stringstream ss(input);
@@ -184,6 +213,9 @@ int main() {
                 searchMultipleWordsOperation(searchService);
                 break;
             case 5:
+                searchQuery(searchService);
+                break;
+            case 6:
                 std::cout << "Exiting the program.\n";
                 db.~Database();
                 return 0;

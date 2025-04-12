@@ -3,6 +3,10 @@
 #include "database/database.hpp"
 #include "model/file.hpp"
 #include "logger/logger.hpp"
+#include "filters/IFilter.hpp"
+#include "filters/PathNameFilter.hpp"
+#include "filters/ContentFilter.hpp"
+#include "utils/string-processor.hpp"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -95,6 +99,7 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
         }
 
         txn.commit();
+
     } catch (const pqxx::sql_error &e) {
         logger.logMessage("SQL error during searchTextContentBySingleWord: " + std::string(e.what()) +
                           " | Query: " + e.query() + " | Input Text: " + text);
@@ -120,4 +125,78 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
 
 std::vector<File> SearchService::searchTextContentByMultipleWords(const std::string &text) {
     return searchTextContentBySingleWord(text);
+}
+
+std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<IFilter>>& filters) {
+    std::vector <File> results;
+
+    pqxx::connection *conn = db->getConnection();
+    if (!conn || !conn->is_open()) {
+        logger.logMessage("Database connection is not open during searchQuery.");
+        return results;
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+    std::string filters_query;
+
+    try {
+        pqxx::work txn(*conn);
+
+        std::string base_query = "SELECT path, LEFT(text_content, 100) FROM files";
+        std::vector<std::string> where_clauses;
+
+        for (const auto& filter : filters) {
+
+            if (const auto* contentFilter = dynamic_cast<const ContentFilter*>(filter.get())) {
+                filters_query += "content:" + contentFilter->getKeyword() + " ";
+                where_clauses.push_back("to_tsvector('english', text_content) @@ plainto_tsquery(" + txn.quote(contentFilter->getKeyword()) + ")");
+            } else if (const auto* nameFilter = dynamic_cast<const PathNameFilter*>(filter.get())) {
+                filters_query += "path:" + nameFilter->getKeyword() + " ";
+                where_clauses.push_back("path ILIKE " + txn.quote(StringProcessor::escapeBackslash(nameFilter->getKeyword())+"%"));
+            }
+
+        }
+        if (!where_clauses.empty()) {
+            base_query += " WHERE ";
+            for (size_t i = 0; i < where_clauses.size(); ++i) {
+                base_query += where_clauses[i];
+                if (i < where_clauses.size() - 1) {
+                    base_query += " AND ";
+                }
+            }
+        }
+
+        base_query += " ORDER BY score DESC LIMIT 5;";
+
+        std::cout<<"\n"<<base_query<<"\n";
+        pqxx::result result = txn.exec(base_query);
+        txn.commit();
+        for (const auto &row: result) {
+            results.emplace_back(row[0].c_str(), row[1].c_str());
+        }
+
+
+    } catch (const pqxx::sql_error &e) {
+        logger.logMessage("SQL error during searchQuery: " + std::string(e.what()) +
+                          " | Query: " + e.query() + " | Input Query: " + filters_query);
+        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        return results;
+    } catch (const pqxx::broken_connection &e) {
+        logger.logMessage("Database connection error: " + std::string(e.what()));
+        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        return results;
+    } catch (const std::exception &e) {
+        logger.logMessage("Error during searchQuery: " + std::string(e.what()));
+        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        return results;
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+    logger.logUserSearchQuery(filters_query, results.size());
+    logger.logSearchPerformanceQuery(filters_query, duration.count());
+    return results;
+
+
 }

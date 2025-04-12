@@ -25,7 +25,7 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
 
         std::string query = "";
         query += "WITH inserted_files AS (";
-        query += "INSERT INTO files (path, name, extension, text_content) VALUES ";
+        query += "INSERT INTO files (path, name, extension, text_content, score) VALUES ";
 
         for (size_t i = 0; i < files.size(); ++i) {
             const File& file = files[i];
@@ -36,11 +36,13 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
             std::string truncateTextContent = StringProcessor::truncateToMaxSize(file.getTextContent(), Config::MAXIMUM_CONTENT_SIZE);
 
             query += "(" + txn.quote(escapeString(file.getPath())) + ", " + txn.quote(escapeString(file.getName())) +
-                    ", " + txn.quote(escapeString(file.getExtension())) + ", " + txn.quote(truncateTextContent) + ")";
+                    ", " + txn.quote(escapeString(file.getExtension())) + ", " + txn.quote(truncateTextContent) +
+                    ", " + std::to_string(file.getScore()) + ")";
+
         }
 
         query += " ON CONFLICT (path) DO UPDATE SET ";
-        query += "name = EXCLUDED.name, extension = EXCLUDED.extension, text_content = EXCLUDED.text_content";
+        query += "name = EXCLUDED.name, extension = EXCLUDED.extension, text_content = EXCLUDED.text_content, score=EXCLUDED.score";
         query += " RETURNING id, path) ";
 
         query += "INSERT INTO file_metadata (file_id, mime_type, created_at, size) ";
@@ -77,7 +79,7 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
     }
     return false;
 }
- 
+
 std::string InsertService::escapeString(const std::string& str) {
     std::string escapedStr = str;
     size_t pos = 0;

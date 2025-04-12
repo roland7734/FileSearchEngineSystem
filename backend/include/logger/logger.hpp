@@ -20,7 +20,9 @@ public:
     void logMessage(const std::string& message);
     void logSearchPerformanceTextContent(const std::string& searchQuery, double duration);
     void logSearchPerformanceFileName(const std::string& searchQuery, double duration);
+    void logSearchPerformanceQuery(const std::string& searchQuery, double duration);
     void logUserSearchTextContent(const std::string& searchQuery, int resultsFound);
+    void logUserSearchQuery(const std::string& searchQuery, int resultsFound);
     void logUserSearchFileName(const std::string& searchQuery, int resultsFound);
     void logFileWithNoData(const std::string& fileName);
     void logFileSizeDistribution(double avgSize, double maxSize, double minSize);

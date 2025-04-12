@@ -69,4 +69,16 @@ std::string StringProcessor::truncateToMaxSize(const std::string& content, size_
     }
     return content;
 }
+std::string StringProcessor::escapeBackslash(const std::string& input) {
+    std::string output;
+    for (char c : input) {
+        if (c == '\\') {
+            output += "\\\\";
+        } else {
+            output += c;
+        }
+    }
+    return output;
+}
+
 
