@@ -14,6 +14,10 @@
 #include "filters/QueryParser.hpp"
 #include "filters/ContentFilter.hpp"
 #include "filters/PathNameFilter.hpp"
+#include "controller/SearchServiceController.hpp"
+#include "controller/CrawlServiceController.hpp"
+#include <crow/app.h>
+#include <crow/middlewares/cors.h>
 
 
 void enableVTMode() {
@@ -180,11 +184,11 @@ int getValidChoice() {
     }
 }
 
-int main() {
-    enableVTMode();
-    std::filesystem::path current_path = std::filesystem::current_path();
 
-    // Build the full path to config.json
+
+int main()
+{
+    std::filesystem::path current_path = std::filesystem::current_path();
     std::filesystem::path config_path = current_path / "config.json";
     Config::loadConfig(config_path.string());
 
@@ -195,34 +199,62 @@ int main() {
     InsertService insertService(&db);
     SearchService searchService(&db);
 
-    while (true) {
+    CrawlServiceController crawlServiceController(&insertService);
+    SearchServiceController searchServiceController(&searchService);
 
-        int choice = getValidChoice();
+    httplib::Server server;
 
-        switch (choice) {
-            case 1:
-                crawlOperation(insertService);
-                break;
-            case 2:
-                searchFileNamesOperation(searchService);
-                break;
-            case 3:
-                searchTextContentOperation(searchService);
-                break;
-            case 4:
-                searchMultipleWordsOperation(searchService);
-                break;
-            case 5:
-                searchQuery(searchService);
-                break;
-            case 6:
-                std::cout << "Exiting the program.\n";
-                db.~Database();
-                return 0;
-            default:
-                std::cout << "Invalid command. Please enter a valid number (1-5).\n";
-        }
-    }
+    crawlServiceController.registerRoutes(server);
+    searchServiceController.registerRoutes(server);
+
+    server.listen("0.0.0.0", 18018);
 
     return 0;
 }
+//
+//int main() {
+//    enableVTMode();
+//    std::filesystem::path current_path = std::filesystem::current_path();
+//
+//    // Build the full path to config.json
+//    std::filesystem::path config_path = current_path / "config.json";
+//    Config::loadConfig(config_path.string());
+//
+//    std::cout << "Welcome to the File Search Engine\n";
+//
+//    Database db;
+//    db.connect();
+//    InsertService insertService(&db);
+//    SearchService searchService(&db);
+//
+//    while (true) {
+//
+//        int choice = getValidChoice();
+//
+//        switch (choice) {
+//            case 1:
+//                crawlOperation(insertService);
+//                break;
+//            case 2:
+//                searchFileNamesOperation(searchService);
+//                break;
+//            case 3:
+//                searchTextContentOperation(searchService);
+//                break;
+//            case 4:
+//                searchMultipleWordsOperation(searchService);
+//                break;
+//            case 5:
+//                searchQuery(searchService);
+//                break;
+//            case 6:
+//                std::cout << "Exiting the program.\n";
+//                db.~Database();
+//                return 0;
+//            default:
+//                std::cout << "Invalid command. Please enter a valid number (1-5).\n";
+//        }
+//    }
+//
+//    return 0;
+//}
