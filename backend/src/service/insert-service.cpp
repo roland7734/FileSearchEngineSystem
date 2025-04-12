@@ -77,7 +77,7 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
     }
     return false;
 }
-
+ 
 std::string InsertService::escapeString(const std::string& str) {
     std::string escapedStr = str;
     size_t pos = 0;
