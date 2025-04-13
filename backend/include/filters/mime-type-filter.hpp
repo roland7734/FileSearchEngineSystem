@@ -1,8 +1,8 @@
-#ifndef MIMETYPEFILTER_HPP
-#define MIMETYPEFILTER_HPP
+#ifndef MIME_TYPE_FILTER_HPP
+#define MIME_TYPE_FILTER_HPP
 
 #include <pqxx/pqxx>
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 
 class MimeTypeFilter : public IFilter {
 public:
@@ -15,4 +15,4 @@ private:
     std::string keyword;
 };
 
-#endif // MIMETYPEFILTER_HPP
+#endif // MIME_TYPE_FILTER_HPP

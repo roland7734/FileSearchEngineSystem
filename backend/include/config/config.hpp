@@ -1,5 +1,3 @@
-// config.hpp
-
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
@@ -13,7 +11,6 @@
 
 namespace Config {
 
-    // Database Configuration
     inline std::string DB_HOST;
     inline int DB_PORT;
     inline std::string DB_NAME;
@@ -21,12 +18,10 @@ namespace Config {
     inline std::string DB_PASSWORD;
     inline const char MAGIC_DB_PATH[] = "D:\\Facultate\\3nd Year Sem2\\SD\\D\\installed\\x64-windows\\share\\libmagic\\misc\\magic.mgc";
 
-    // Crawler Settings
     inline constexpr int BATCH_SIZE = 100;
     inline constexpr int MAXIMUM_CONTENT_SIZE = 1048575;
 
     inline constexpr double PATH_DEPTH_WEIGHT = 100.0;
-
 
     inline constexpr int SMALL_FILE_SIZE = 1024;
     inline constexpr double SMALL_FILE_BONUS = 5.0;

@@ -1,5 +1,3 @@
-// StringProcessor.cpp
-
 #include "utils/string-processor.hpp"
 #include <stdexcept>
 #include <windows.h>

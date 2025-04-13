@@ -1,7 +1,7 @@
-#ifndef FILENAMEFILTER_HPP
-#define FILENAMEFILTER_HPP
+#ifndef FILE_NAME_FILTER_HPP
+#define FILE_NAME_FILTER_HPP
 
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 
 class PathNameFilter : public IFilter {
 private:
@@ -15,4 +15,4 @@ public:
 
 };
 
-#endif // FILENAMEFILTER_HPP
+#endif // FILE_NAME_FILTER_HPP

@@ -1,5 +1,5 @@
 #include <pqxx/pqxx>
-#include "filters/PathNameFilter.hpp"
+#include "filters/path-name-filter.hpp"
 #include "utils/string-processor.hpp"
 
 PathNameFilter::PathNameFilter(const std::string& keyword) : keyword(keyword) {}

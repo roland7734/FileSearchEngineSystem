@@ -1,4 +1,4 @@
-#include "utils/MagicWrapper.hpp"
+#include "utils/magic-wrapper.hpp"
 #include "config/config.hpp"
 #include <stdexcept>
 #include <mutex>

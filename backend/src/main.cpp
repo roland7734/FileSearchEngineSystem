@@ -11,13 +11,16 @@
 #include "service/search-service.hpp"
 #include "logger/logger.hpp"
 #include "config/config.hpp"
-#include "filters/QueryParser.hpp"
-#include "filters/ContentFilter.hpp"
-#include "filters/PathNameFilter.hpp"
-#include "controller/SearchServiceController.hpp"
-#include "controller/CrawlServiceController.hpp"
-#include "utils/MagicWrapper.hpp"
-#include "controller/FileOpenController.hpp"
+#include "filters/query-parser.hpp"
+#include "filters/content-filter.hpp"
+#include "filters/path-name-filter.hpp"
+#include "controller/search-service-controller.hpp"
+#include "controller/crawl-service-controller.hpp"
+#include "utils/magic-wrapper.hpp"
+#include "controller/file-open-controller.hpp"
+#include "observers/results-history.hpp"
+#include "observers/search-history.hpp"
+#include "controller/query-suggestions-controller.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 
@@ -202,16 +205,24 @@ int main()
     InsertService insertService(&db);
     SearchService searchService(&db);
     UsageStatsService usageStatsService(&db);
+    IObserver* searchHistory = new SearchHistory();
+
+    IObserver* resultsHistory = new ResultsHistory(&db);
+
+    searchService.addObserver(searchHistory);
+    searchService.addObserver(resultsHistory);
 
     CrawlServiceController crawlServiceController(&insertService);
     SearchServiceController searchServiceController(&searchService);
     FileOpenController fileOpenController(&usageStatsService);
+    QuerySuggestionsController querySuggestionsController(dynamic_cast<SearchHistory*>(searchHistory));
 
     httplib::Server server;
 
     fileOpenController.registerRoutes(server);
     crawlServiceController.registerRoutes(server);
     searchServiceController.registerRoutes(server);
+    querySuggestionsController.registerRoutes(server);
 
     server.listen("0.0.0.0", 18018);
 

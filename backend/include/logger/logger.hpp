@@ -1,5 +1,3 @@
-// logger.hpp
-
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 

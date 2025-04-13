@@ -1,14 +1,14 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
-#include "filters/IFilter.hpp"
-#include "filters/QueryParser.hpp"
-#include "filters/ContentFilter.hpp"
-#include "filters/PathNameFilter.hpp"
-#include "filters/SizeFilter.hpp"
-#include "filters/MimeTypeFilter.hpp"
-#include "filters/FilterField.hpp"
-#include "filters/AccessTimeFilter.hpp"
+#include "filters/ifilter.hpp"
+#include "filters/query-parser.hpp"
+#include "filters/content-filter.hpp"
+#include "filters/path-name-filter.hpp"
+#include "filters/size-filter.hpp"
+#include "filters/mime-type-filter.hpp"
+#include "filters/filter-field.hpp"
+#include "filters/access-time-filter.hpp"
 #include <regex>
 
 

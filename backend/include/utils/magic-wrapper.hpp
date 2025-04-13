@@ -1,5 +1,5 @@
-#ifndef MAGICWRAPPER_HPP
-#define MAGICWRAPPER_HPP
+#ifndef MAGIC_WRAPPER_HPP
+#define MAGIC_WRAPPER_HPP
 
 #include <string>
 #include <magic.h>
@@ -28,4 +28,4 @@ private:
     static MagicHandleRAII* sharedHandle;
 };
 
-#endif // MAGICWRAPPER_HPP
+#endif // MAGIC_WRAPPER_HPP

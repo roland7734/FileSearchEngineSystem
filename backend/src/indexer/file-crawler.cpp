@@ -1,5 +1,3 @@
-// file-crawler.cpp
-
 #include <filesystem>
 #include "indexer/file-crawler.hpp"
 #include "database/database.hpp"

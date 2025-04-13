@@ -1,5 +1,3 @@
-// logger.cpp
-
 #include <fstream>
 #include <iostream>
 #include <sstream>

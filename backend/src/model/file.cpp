@@ -4,7 +4,7 @@
 #include "model/file.hpp"
 #include "utils/string-processor.hpp"
 #include "config/config.hpp"
-#include "utils/MagicWrapper.hpp"
+#include "utils/magic-wrapper.hpp"
 
 namespace fs = std::filesystem;
 

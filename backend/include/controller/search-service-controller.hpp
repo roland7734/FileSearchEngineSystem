@@ -1,7 +1,7 @@
-#ifndef SEARCHSERVICECONTROLLER_HPP
-#define SEARCHSERVICECONTROLLER_HPP
+#ifndef SEARCH_SERVICE_CONTROLLER_HPP
+#define SEARCH_SERVICE_CONTROLLER_HPP
 
-#include "IController.hpp"
+#include "icontroller.hpp"
 #include "service/search-service.hpp"
 
 
@@ -14,4 +14,4 @@ private:
     SearchService* searchService;
 };
 
-#endif // SEARCHSERVICECONTROLLER_HPP
+#endif // SEARCH_SERVICE_CONTROLLER_HPP

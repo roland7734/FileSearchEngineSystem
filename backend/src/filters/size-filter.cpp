@@ -1,4 +1,4 @@
-#include "filters/SizeFilter.hpp"
+#include "filters/size-filter.hpp"
 #include <regex>
 
 SizeFilter::SizeFilter(const std::string& input) : rawValue(input) {}

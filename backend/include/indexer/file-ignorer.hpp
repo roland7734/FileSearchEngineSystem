@@ -1,5 +1,3 @@
-// file_ignorer.hpp
-
 #ifndef FILE_IGNORER_HPP
 #define FILE_IGNORER_HPP
 

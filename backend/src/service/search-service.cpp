@@ -3,9 +3,9 @@
 #include "database/database.hpp"
 #include "model/file.hpp"
 #include "logger/logger.hpp"
-#include "filters/IFilter.hpp"
-#include "filters/PathNameFilter.hpp"
-#include "filters/ContentFilter.hpp"
+#include "filters/ifilter.hpp"
+#include "filters/path-name-filter.hpp"
+#include "filters/content-filter.hpp"
 #include "utils/string-processor.hpp"
 #include "config/config.hpp"
 #include <iostream>
@@ -13,6 +13,16 @@
 #include <vector>
 
 SearchService::SearchService(Database *db) : db(db) {}
+
+void SearchService::addObserver(IObserver* observer) {
+    observers.push_back(observer);
+}
+
+void SearchService::notifyObservers(const std::unordered_map<std::string, std::vector<std::string>>& filters, const std::unordered_set<int>& results) {
+    for (const auto& observer : observers) {
+        observer->update(filters, results);
+    }
+}
 
 std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
     std::vector <File> results;
@@ -41,7 +51,7 @@ std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
 
             size_t lastSlashPos = path.find_last_of("/\\");
             std::string directory = (lastSlashPos != std::string::npos) ? path.substr(0, lastSlashPos + 1)
-                                                                        : "";  // Keep the directory part
+                                                                        : "";
             size_t lastDotPos = path.find_last_of(".");
 
             std::string extension = (lastDotPos != std::string::npos) ? path.substr(lastDotPos + 1) : "";
@@ -130,6 +140,8 @@ std::vector<File> SearchService::searchTextContentByMultipleWords(const std::str
 
 std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<IFilter>>& filters) {
     std::vector <File> results;
+    std::unordered_map<std::string, std::vector<std::string>> filterMap;
+    std::unordered_set<int> fileIds;
 
     pqxx::connection *conn = db->getConnection();
     if (!conn || !conn->is_open()) {
@@ -144,14 +156,17 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
         pqxx::work txn(*conn);
 
         std::string base_query = "SET enable_nestloop = off; "
-                                 "SELECT path, LEFT(text_content, 100) "
+                                 "SELECT files.id, path, LEFT(text_content, 100) "
                                  "FROM files JOIN file_metadata ON files.id = file_metadata.file_id "
                                  "LEFT JOIN file_usage_stats ON file_usage_stats.file_id = files.id";
         std::vector<std::string> where_clauses;
 
         for (const auto& filter : filters) {
-            filters_query += filter->getPrefix() + ":" + filter->getKeyword() + " ";
+            std::string key = filter->getPrefix();
+            std::string value = filter->getKeyword();
+            filters_query += key + ":" + value + " ";
             where_clauses.push_back(filter->getWhereClause(txn));
+            filterMap[key].push_back(value);
         }
 
         if (!where_clauses.empty()) {
@@ -172,7 +187,8 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
         pqxx::result result = txn.exec(base_query);
         txn.commit();
         for (const auto &row: result) {
-            results.emplace_back(row[0].c_str(), row[1].c_str());
+            results.emplace_back(row[1].c_str(), row[2].c_str());
+            fileIds.insert(row[0].as<int>());
         }
 
 
@@ -196,6 +212,9 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
 
     logger.logUserSearchQuery(filters_query, results.size());
     logger.logSearchPerformanceQuery(filters_query, duration.count());
+
+    notifyObservers(filterMap, fileIds);
+
     return results;
 
 

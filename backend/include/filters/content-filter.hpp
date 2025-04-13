@@ -1,7 +1,7 @@
-#ifndef CONTENTFILTER_HPP
-#define CONTENTFILTER_HPP
+#ifndef CONTENT_FILTER_HPP
+#define CONTENT_FILTER_HPP
 
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 
 class ContentFilter : public IFilter {
 private:
@@ -15,4 +15,4 @@ public:
 
 };
 
-#endif // CONTENTFILTER_HPP
+#endif // CONTENT_FILTER_HPP

@@ -1,5 +1,3 @@
-// file-crawler.hpp
-
 #ifndef FILE_CRAWLER_HPP
 #define FILE_CRAWLER_HPP
 

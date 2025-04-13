@@ -1,5 +1,3 @@
-// index-builder.hpp
-
 #ifndef INDEX_BUILDER_HPP
 #define INDEX_BUILDER_HPP
 

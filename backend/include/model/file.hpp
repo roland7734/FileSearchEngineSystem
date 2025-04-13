@@ -1,5 +1,3 @@
-// file.hpp
-
 #ifndef FILE_HPP
 #define FILE_HPP
 
@@ -11,8 +9,8 @@ public:
     File(const std::string& path, size_t size, std::time_t createdAt = std::time(nullptr));
     File(const std::string& path, const std::string& textContent);
 
-    std::string getName() const;        // Get the name of the file (without extension)
-    std::string getExtension() const;   // Get the file extension (without dot)
+    std::string getName() const;
+    std::string getExtension() const;
     std::string getPath() const;
     std::string getTextContent() const;
     size_t getSize() const;

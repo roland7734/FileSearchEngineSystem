@@ -1,8 +1,8 @@
-#ifndef SIZEFILTER_HPP
-#define SIZEFILTER_HPP
+#ifndef SIZE_FILTER_HPP
+#define SIZE_FILTER_HPP
 
 #include <pqxx/pqxx>
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 
 class SizeFilter : public IFilter {
 public:
@@ -17,4 +17,4 @@ private:
     static std::string isNumber(const std::string& value);
 };
 
-#endif // SIZEFILTER_HPP
+#endif // SIZE_FILTER_HPP

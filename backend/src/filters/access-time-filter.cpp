@@ -1,4 +1,4 @@
-#include "filters/AccessTimeFilter.hpp"
+#include "filters/access-time-filter.hpp"
 #include <regex>
 
 AccessTimeFilter::AccessTimeFilter(const std::string& input) : rawValue(input) {}

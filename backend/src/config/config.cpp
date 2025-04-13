@@ -1,5 +1,3 @@
-// config.cpp
-
 #include <iostream>
 #include "config/config.hpp"
 #include "logger/logger.hpp"

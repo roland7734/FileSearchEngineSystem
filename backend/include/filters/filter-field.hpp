@@ -1,7 +1,5 @@
-// FilterField.hpp
-
-#ifndef FILTERFIELD_HPP
-#define FILTERFIELD_HPP
+#ifndef FILTER_FIELD_HPP
+#define FILTER_FIELD_HPP
 
 enum class FilterField {
     Content,
@@ -20,4 +18,4 @@ inline FilterField parseFilterField(const std::string& key) {
     throw std::invalid_argument("Unrecognized key in query: " + key);
 }
 
-#endif // FILTERFIELD_HPP
+#endif // FILTER_FIELD_HPP

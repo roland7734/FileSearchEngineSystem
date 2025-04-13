@@ -1,4 +1,4 @@
-#include "filters/MimeTypeFilter.hpp"
+#include "filters/mime-type-filter.hpp"
 
 MimeTypeFilter::MimeTypeFilter(const std::string& input) : keyword(input) {}
 

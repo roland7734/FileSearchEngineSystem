@@ -1,5 +1,3 @@
-// insert-service.cpp
-
 #include <pqxx/pqxx>
 #include "service/insert-service.hpp"
 #include "database/database.hpp"

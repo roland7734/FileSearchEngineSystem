@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <nlohmann/json.hpp>
-#include "controller/FileOpenController.hpp"
+#include "controller/file-open-controller.hpp"
 
 FileOpenController::FileOpenController(UsageStatsService* usageStatsService)
         : usageStatsService(usageStatsService) {}

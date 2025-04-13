@@ -1,6 +1,6 @@
-#include "controller/SearchServiceController.hpp"
+#include "controller/search-service-controller.hpp"
 #include "service/search-service.hpp"
-#include "filters/QueryParser.hpp"
+#include "filters/query-parser.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 

@@ -1,8 +1,8 @@
-#ifndef ACCESSTIMEFILTER_HPP
-#define ACCESSTIMEFILTER_HPP
+#ifndef ACCESS_TIME_FILTER_HPP
+#define ACCESS_TIME_FILTER_HPP
 
 #include <pqxx/pqxx>
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 
 class AccessTimeFilter : public IFilter {
 public:
@@ -18,4 +18,4 @@ private:
 
 };
 
-#endif // ACCESSTIMEFILTER_HPP
+#endif // ACCESS_TIME_FILTER_HPP

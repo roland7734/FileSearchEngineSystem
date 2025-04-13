@@ -1,5 +1,3 @@
-// index-builder.cpp
-
 #include "indexer/index-builder.hpp"
 #include "database/database.hpp"
 #include "indexer/file-crawler.hpp"

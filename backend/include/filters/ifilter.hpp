@@ -1,5 +1,6 @@
-#ifndef IFILTER_HPP
-#define IFILTER_HPP
+#ifndef I_FILTER_HPP
+#define I_FILTER_HPP
+
 #include <pqxx/pqxx>
 #include <string>
 
@@ -13,4 +14,4 @@ public:
 
 };
 
-#endif // IFILTER_HPP
+#endif // I_FILTER_HPP

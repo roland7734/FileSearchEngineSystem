@@ -1,7 +1,5 @@
-// StringProcessor.hpp
-
-#ifndef STRINGPROCESSOR_HPP
-#define STRINGPROCESSOR_HPP
+#ifndef STRING_PROCESSOR_HPP
+#define STRING_PROCESSOR_HPP
 
 #include <string>
 
@@ -14,4 +12,4 @@ public:
 
     };
 
-#endif // STRINGPROCESSOR_HPP
+#endif // STRING_PROCESSOR_HPP

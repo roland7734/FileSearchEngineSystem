@@ -1,5 +1,3 @@
-// file-ignorer.cpp
-
 #include <iostream>
 #include "indexer/file-ignorer.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef QUERY_PARSER_HPP
 #define QUERY_PARSER_HPP
 
-#include "IFilter.hpp"
+#include "ifilter.hpp"
 #include <vector>
 #include <memory>
 #include <string>

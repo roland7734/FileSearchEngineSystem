@@ -1,5 +1,3 @@
-// database.cpp
-
 #include <iostream>
 #include "database/database.hpp"
 #include "config/config.hpp"
