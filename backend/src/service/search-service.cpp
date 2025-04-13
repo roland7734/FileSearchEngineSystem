@@ -7,6 +7,7 @@
 #include "filters/PathNameFilter.hpp"
 #include "filters/ContentFilter.hpp"
 #include "utils/string-processor.hpp"
+#include "config/config.hpp"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -144,7 +145,8 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
 
         std::string base_query = "SET enable_nestloop = off; "
                                  "SELECT path, LEFT(text_content, 100) "
-                                 "FROM files JOIN file_metadata ON files.id = file_metadata.file_id ";
+                                 "FROM files JOIN file_metadata ON files.id = file_metadata.file_id "
+                                 "LEFT JOIN file_usage_stats ON file_usage_stats.file_id = files.id";
         std::vector<std::string> where_clauses;
 
         for (const auto& filter : filters) {
@@ -162,7 +164,9 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
             }
         }
 
-        base_query += " ORDER BY score DESC LIMIT 5;";
+        base_query += " ORDER BY score + COALESCE(access_count, 0)  * " + std::to_string(Config::ACCESS_COUNT_SCORE) +
+                " + COALESCE(search_count, 0) * " + std::to_string(Config::SEARCH_COUNT_SCORE) +  " DESC LIMIT 5;";
+
 
         std::cout<<"\n"<<base_query<<"\n";
         pqxx::result result = txn.exec(base_query);

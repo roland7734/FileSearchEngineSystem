@@ -17,8 +17,10 @@ void CrawlServiceController::registerRoutes(httplib::Server& server) {
 
     server.Post("/crawl", [this](const httplib::Request& req, httplib::Response& res) {
         try {
-            // Parse the JSON body
             auto body = nlohmann::json::parse(req.body, nullptr, false);
+
+
+
             if (body.is_discarded() || !body.contains("basePath") || !body.contains("patterns")) {
                 res.status = 400;
                 res.set_header("Access-Control-Allow-Origin", "*");

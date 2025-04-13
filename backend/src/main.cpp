@@ -17,6 +17,7 @@
 #include "controller/SearchServiceController.hpp"
 #include "controller/CrawlServiceController.hpp"
 #include "utils/MagicWrapper.hpp"
+#include "controller/FileOpenController.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 
@@ -200,12 +201,15 @@ int main()
     db.connect();
     InsertService insertService(&db);
     SearchService searchService(&db);
+    UsageStatsService usageStatsService(&db);
 
     CrawlServiceController crawlServiceController(&insertService);
     SearchServiceController searchServiceController(&searchService);
+    FileOpenController fileOpenController(&usageStatsService);
 
     httplib::Server server;
 
+    fileOpenController.registerRoutes(server);
     crawlServiceController.registerRoutes(server);
     searchServiceController.registerRoutes(server);
 

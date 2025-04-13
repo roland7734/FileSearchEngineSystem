@@ -7,7 +7,7 @@
 
 class SearchServiceController : public IController {
 public:
-    SearchServiceController(SearchService* searchService);
+    explicit SearchServiceController(SearchService* searchService);
     void registerRoutes(httplib::Server& server) override;
 
 private:

@@ -30,7 +30,8 @@ namespace Config {
 
     inline constexpr int SMALL_FILE_SIZE = 1024;
     inline constexpr double SMALL_FILE_BONUS = 5.0;
-
+    inline constexpr double SEARCH_COUNT_SCORE = 10.0;
+    inline constexpr double ACCESS_COUNT_SCORE = 10.0;
     inline constexpr double CREATED_TIME_DECAY_PER_DAY = 0.1;
 
     const std::unordered_map<std::string, double> DIRECTORY_BONUSES = {
