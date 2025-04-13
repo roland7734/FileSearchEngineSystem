@@ -5,78 +5,88 @@
 #include "filters/QueryParser.hpp"
 #include "filters/ContentFilter.hpp"
 #include "filters/PathNameFilter.hpp"
+#include "filters/SizeFilter.hpp"
+#include "filters/MimeTypeFilter.hpp"
+#include "filters/FilterField.hpp"
+#include "filters/AccessTimeFilter.hpp"
+#include <regex>
+
+
 
 std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& query) {
     std::vector<std::unique_ptr<IFilter>> filters;
-    std::string key;
-    std::string value;
     size_t pos = 0;
 
     while (pos < query.length()) {
-        while (pos < query.length() && std::isspace(query[pos])) {
-            ++pos;
-        }
+        while (pos < query.length() && std::isspace(query[pos])) ++pos;
+        if (pos >= query.length()) break;
 
         size_t keyStart = pos;
-        size_t keyEnd = query.find(':', keyStart);
-        if (keyEnd == std::string::npos)
-            throw std::invalid_argument("No ':' character present.");
+        size_t sep = query.find_first_of(":<=>", keyStart);
+        if (sep == std::string::npos)
+            throw std::invalid_argument("Missing separator (:, <, >, =) in query.");
 
-
-        key = query.substr(keyStart, keyEnd - keyStart);
+        std::string key = query.substr(keyStart, sep - keyStart);
         key = trim(key);
+        if (key.empty()) throw std::invalid_argument("Empty key in query.");
 
-        pos = keyEnd + 1;
-        if(pos + 2 >= query.length())
-            throw std::invalid_argument("No value present for a given key.");
+        char op = query[sep];
+        ++sep;
 
+        if((key == "size" || key == "accesstime") && op == ':' && sep < query.size())
+            if(query[sep] == '=' || query[sep] == '<' || query[sep] == '>') {
+                    op = query[sep];
+                    ++sep;
+                } else op = '=';
 
-        size_t valueStart = pos;
+        if (sep < query.size() && (query[sep] == '=' || query[sep] == '<' || query[sep] == '>')) {
+            throw std::invalid_argument("Double comparison operators like >=, <= are not supported.");
+        }
 
-        if (query[pos] == '"') {
-            size_t valueEnd = query.find('"', valueStart + 1);
-            if (valueEnd == std::string::npos) {
-                throw std::invalid_argument("Unmatched quotes in query.");
-            }
+        if (sep >= query.length()) throw std::invalid_argument("Missing value after key.");
 
-            size_t afterQuotePos = valueEnd + 1;
-            if (afterQuotePos < query.length() && !std::isspace(query[afterQuotePos]) && query[afterQuotePos] != ':') {
-                throw std::invalid_argument("Unexpected characters after quoted value in query.");
-            }
-
-
-            value = query.substr(valueStart + 1, valueEnd - valueStart - 1);
-            pos = valueEnd + 1;
+        std::string value;
+        if (query[sep] == '"') {
+            size_t quoteEnd = query.find('"', sep + 1);
+            if (quoteEnd == std::string::npos)
+                throw std::invalid_argument("Unmatched quote in query.");
+            value = query.substr(sep + 1, quoteEnd - sep - 1);
+            pos = quoteEnd + 1;
         } else {
-            size_t valueEnd = query.find_first_of(" \n", valueStart);
+            size_t valueEnd = query.find_first_of(" \n", sep);
             if (valueEnd == std::string::npos) valueEnd = query.length();
-            value = query.substr(valueStart, valueEnd - valueStart);
+            value = query.substr(sep, valueEnd - sep);
             pos = valueEnd;
-
-            if (value.empty()) {
-                if (query[pos] == ':' || query[pos] == '"') {
-                    value = "";
-                } else if (pos < query.length() && !std::isspace(query[pos]) && query[pos] != ':') {
-                    throw std::invalid_argument("Unexpected characters after unquoted value in query.");
-                }
-            }
         }
 
         value = trim(value);
+        if (value.empty())
+            throw std::invalid_argument("Empty value for key: " + key);
 
-        if (key == "content") {
+        FilterField fieldType = parseFilterField(key);
+
+        if (fieldType == FilterField::Content) {
             filters.push_back(std::make_unique<ContentFilter>(value));
-        } else if (key == "path") {
+        } else if (fieldType == FilterField::Path) {
             filters.push_back(std::make_unique<PathNameFilter>(value));
+        } else if (fieldType == FilterField::Size) {
+            filters.push_back(std::make_unique<SizeFilter>(op + value));
+        } else if (fieldType == FilterField::AccessTime) {
+            filters.push_back(std::make_unique<AccessTimeFilter>(op + value));
+        } else if (fieldType == FilterField::MimeType) {
+            filters.push_back(std::make_unique<MimeTypeFilter>(value));
         } else {
-            throw std::invalid_argument("Unrecognized key in query: " + key);
+            throw std::invalid_argument("Unknown filter field in query: " + key);
         }
     }
 
     return filters;
 }
 
+
 std::string QueryParser::trim(const std::string& str) {
+
+    if(str.empty()) return "";
     size_t start = 0;
     size_t end = str.size() - 1;
 

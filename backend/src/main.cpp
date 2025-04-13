@@ -16,8 +16,10 @@
 #include "filters/PathNameFilter.hpp"
 #include "controller/SearchServiceController.hpp"
 #include "controller/CrawlServiceController.hpp"
+#include "utils/MagicWrapper.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
+
 
 
 void enableVTMode() {

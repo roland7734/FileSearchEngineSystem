@@ -9,6 +9,9 @@ private:
 public:
     explicit ContentFilter(const std::string& keyword);
     std::string getKeyword() const override;
+    std::string getWhereClause(pqxx::work& txn) const override;
+    std::string getPrefix() const override;
+
 
 };
 

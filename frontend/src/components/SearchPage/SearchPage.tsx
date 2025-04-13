@@ -30,7 +30,9 @@ const SearchPage: React.FC = () => {
     try {
       const data = await searchFiles(query);
       setResults(data.results);
-      setModalMessage("Search completed.");
+      setModalMessage(
+        "Search completed. Found " + data.results.length + " results."
+      );
     } catch (error: any) {
       console.error("Search failed:", error.message);
       setModalMessage("Search failed: " + error.message);

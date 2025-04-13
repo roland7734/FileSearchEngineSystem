@@ -19,6 +19,7 @@ namespace Config {
     inline std::string DB_NAME;
     inline std::string DB_USER;
     inline std::string DB_PASSWORD;
+    inline const char MAGIC_DB_PATH[] = "D:\\Facultate\\3nd Year Sem2\\SD\\D\\installed\\x64-windows\\share\\libmagic\\misc\\magic.mgc";
 
     // Crawler Settings
     inline constexpr int BATCH_SIZE = 100;

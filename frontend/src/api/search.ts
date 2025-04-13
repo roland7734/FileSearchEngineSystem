@@ -1,4 +1,3 @@
-// api/searchFiles.ts
 import axiosInstance from "./axiosInstance";
 
 export const searchFiles = async (query: string) => {
@@ -9,9 +8,14 @@ export const searchFiles = async (query: string) => {
     return response.data;
   } catch (error: any) {
     console.error("Error searching files:", error);
-    throw new Error(
-      error.response?.data?.message ||
-        "An error occurred while searching files."
-    );
+
+    const errorMessage =
+      (
+        (error.response?.data?.error || "") +
+        " " +
+        (error.response?.data?.details || "")
+      ).trim() || "An error occurred while searching files.";
+
+    throw new Error(errorMessage);
   }
 };

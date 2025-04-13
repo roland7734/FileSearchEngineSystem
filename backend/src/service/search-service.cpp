@@ -142,20 +142,16 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
     try {
         pqxx::work txn(*conn);
 
-        std::string base_query = "SELECT path, LEFT(text_content, 100) FROM files";
+        std::string base_query = "SET enable_nestloop = off; "
+                                 "SELECT path, LEFT(text_content, 100) "
+                                 "FROM files JOIN file_metadata ON files.id = file_metadata.file_id ";
         std::vector<std::string> where_clauses;
 
         for (const auto& filter : filters) {
-
-            if (const auto* contentFilter = dynamic_cast<const ContentFilter*>(filter.get())) {
-                filters_query += "content:" + contentFilter->getKeyword() + " ";
-                where_clauses.push_back("to_tsvector('english', text_content) @@ plainto_tsquery(" + txn.quote(contentFilter->getKeyword()) + ")");
-            } else if (const auto* nameFilter = dynamic_cast<const PathNameFilter*>(filter.get())) {
-                filters_query += "path:" + nameFilter->getKeyword() + " ";
-                where_clauses.push_back("path ILIKE " + txn.quote(StringProcessor::escapeBackslash(nameFilter->getKeyword())+"%"));
-            }
-
+            filters_query += filter->getPrefix() + ":" + filter->getKeyword() + " ";
+            where_clauses.push_back(filter->getWhereClause(txn));
         }
+
         if (!where_clauses.empty()) {
             base_query += " WHERE ";
             for (size_t i = 0; i < where_clauses.size(); ++i) {
@@ -180,15 +176,15 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
         logger.logMessage("SQL error during searchQuery: " + std::string(e.what()) +
                           " | Query: " + e.query() + " | Input Query: " + filters_query);
         logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
-        return results;
+        throw;
     } catch (const pqxx::broken_connection &e) {
         logger.logMessage("Database connection error: " + std::string(e.what()));
         logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
-        return results;
+        throw;
     } catch (const std::exception &e) {
         logger.logMessage("Error during searchQuery: " + std::string(e.what()));
         logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
-        return results;
+        throw;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
