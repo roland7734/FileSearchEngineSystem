@@ -2,30 +2,27 @@
 #include <iostream>
 #include <sstream>
 #include <ctime>
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 
-Logger logger;
+//Logger logger();
 
-Logger::Logger(const std::string& logFilePath) : logFilePath(logFilePath) {
-    writeLog("File Search Engine Log Started");
+Logger::Logger(ILogger* strategy) : loggerStrategy(strategy) {
+    logMessage("File Search Engine Log Started");
+}
+
+void Logger::setStrategy(ILogger* strategy) {
+    if (loggerStrategy) {
+        delete loggerStrategy;
+        loggerStrategy = nullptr;
+    }
+    loggerStrategy = strategy;
 }
 
 void Logger::writeLog(const std::string& message) {
-    std::ofstream logFile(logFilePath, std::ios::app);
-    if (!logFile) {
-        std::cerr << "Error: Unable to open log file." << std::endl;
-        return;
+    if (loggerStrategy) {
+        loggerStrategy->writeLog(message);
     }
-
-    auto now = std::chrono::system_clock::now();
-    std::time_t nowTime = std::chrono::system_clock::to_time_t(now);
-    std::string timeStr = std::ctime(&nowTime);
-    timeStr.erase(timeStr.find('\n'));
-
-    logFile << "[" << timeStr << "] " << message << std::endl;
-    logFile.close();
 }
-
 void Logger::logStartCrawl(const std::string& basePath) {
     std::ostringstream oss;
     oss << "Crawl started at the path \""<< basePath << "\"";

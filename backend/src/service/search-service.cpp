@@ -2,7 +2,7 @@
 #include "service/search-service.hpp"
 #include "database/database.hpp"
 #include "model/file.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include "filters/ifilter.hpp"
 #include "filters/path-name-filter.hpp"
 #include "filters/content-filter.hpp"
@@ -29,11 +29,11 @@ std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
 
     pqxx::connection *conn = db->getConnection();
     if (!conn || !conn->is_open()) {
-        logger.logMessage("Database connection is not open during searchFileNames.");
+        LoggerManager::instance().logMessage("Database connection is not open during searchFileNames.");
         return results;
     }
 
-    logger.logMessage("Executing file name search with keyword: " + keyword);
+    LoggerManager::instance().logMessage("Executing file name search with keyword: " + keyword);
     auto start = std::chrono::high_resolution_clock::now();
 
     try {
@@ -62,25 +62,25 @@ std::vector<File> SearchService::searchFileNames(const std::string &keyword) {
 
         txn.commit();
     } catch (const pqxx::sql_error &e) {
-        logger.logMessage("SQL error during searchFileNames: " + std::string(e.what()) +
+        LoggerManager::instance().logMessage("SQL error during searchFileNames: " + std::string(e.what()) +
                           " | Query: " + e.query() + " | Input Keyword: " + keyword);
-        logger.logMessage("Search query for keyword: " + keyword + " has failed.");
+        LoggerManager::instance().logMessage("Search query for keyword: " + keyword + " has failed.");
         return results;
     } catch (const pqxx::broken_connection &e) {
-        logger.logMessage("Database connection error: " + std::string(e.what()));
-        logger.logMessage("Search query for keyword: " + keyword + " has failed.");
+        LoggerManager::instance().logMessage("Database connection error: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for keyword: " + keyword + " has failed.");
         return results;
     } catch (const std::exception &e) {
-        logger.logMessage("Error during searchFileNames: " + std::string(e.what()));
-        logger.logMessage("Search query for keyword: " + keyword + " has failed.");
+        LoggerManager::instance().logMessage("Error during searchFileNames: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for keyword: " + keyword + " has failed.");
         return results;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    logger.logUserSearchFileName(keyword, results.size());
-    logger.logSearchPerformanceFileName(keyword, duration.count());
+    LoggerManager::instance().logUserSearchFileName(keyword, results.size());
+    LoggerManager::instance().logSearchPerformanceFileName(keyword, duration.count());
     return results;
 }
 
@@ -89,11 +89,11 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
 
     pqxx::connection *conn = db->getConnection();
     if (!conn || !conn->is_open()) {
-        logger.logMessage("Database connection is not open during searchTextContentBySingleWord.");
+        LoggerManager::instance().logMessage("Database connection is not open during searchTextContentBySingleWord.");
         return results;
     }
 
-    logger.logMessage("Executing text content search with keyword: " + text);
+    LoggerManager::instance().logMessage("Executing text content search with keyword: " + text);
     auto start = std::chrono::high_resolution_clock::now();
     try {
         pqxx::work txn(*conn);
@@ -112,25 +112,25 @@ std::vector<File> SearchService::searchTextContentBySingleWord(const std::string
         txn.commit();
 
     } catch (const pqxx::sql_error &e) {
-        logger.logMessage("SQL error during searchTextContentBySingleWord: " + std::string(e.what()) +
+        LoggerManager::instance().logMessage("SQL error during searchTextContentBySingleWord: " + std::string(e.what()) +
                           " | Query: " + e.query() + " | Input Text: " + text);
-        logger.logMessage("Search query for Input Text: \"" + text + "\" has failed.");
+        LoggerManager::instance().logMessage("Search query for Input Text: \"" + text + "\" has failed.");
         return results;
     } catch (const pqxx::broken_connection &e) {
-        logger.logMessage("Database connection error: " + std::string(e.what()));
-        logger.logMessage("Search query for Input Text: \"" + text + "\" has failed.");
+        LoggerManager::instance().logMessage("Database connection error: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for Input Text: \"" + text + "\" has failed.");
         return results;
     } catch (const std::exception &e) {
-        logger.logMessage("Error during searchTextContentBySingleWord: " + std::string(e.what()));
-        logger.logMessage("Search query for Input Text: \"" + text + "\" has failed.");
+        LoggerManager::instance().logMessage("Error during searchTextContentBySingleWord: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for Input Text: \"" + text + "\" has failed.");
         return results;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    logger.logUserSearchTextContent(text, results.size());
-    logger.logSearchPerformanceTextContent(text, duration.count());
+    LoggerManager::instance().logUserSearchTextContent(text, results.size());
+    LoggerManager::instance().logSearchPerformanceTextContent(text, duration.count());
     return results;
 }
 
@@ -145,7 +145,7 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
 
     pqxx::connection *conn = db->getConnection();
     if (!conn || !conn->is_open()) {
-        logger.logMessage("Database connection is not open during searchQuery.");
+        LoggerManager::instance().logMessage("Database connection is not open during searchQuery.");
         return results;
     }
 
@@ -193,25 +193,25 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
 
 
     } catch (const pqxx::sql_error &e) {
-        logger.logMessage("SQL error during searchQuery: " + std::string(e.what()) +
+        LoggerManager::instance().logMessage("SQL error during searchQuery: " + std::string(e.what()) +
                           " | Query: " + e.query() + " | Input Query: " + filters_query);
-        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        LoggerManager::instance().logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
         throw;
     } catch (const pqxx::broken_connection &e) {
-        logger.logMessage("Database connection error: " + std::string(e.what()));
-        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        LoggerManager::instance().logMessage("Database connection error: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
         throw;
     } catch (const std::exception &e) {
-        logger.logMessage("Error during searchQuery: " + std::string(e.what()));
-        logger.logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
+        LoggerManager::instance().logMessage("Error during searchQuery: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Search query for Input Query: \"" + filters_query + "\" has failed.");
         throw;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    logger.logUserSearchQuery(filters_query, results.size());
-    logger.logSearchPerformanceQuery(filters_query, duration.count());
+    LoggerManager::instance().logUserSearchQuery(filters_query, results.size());
+    LoggerManager::instance().logSearchPerformanceQuery(filters_query, duration.count());
 
     notifyObservers(filterMap, fileIds);
 

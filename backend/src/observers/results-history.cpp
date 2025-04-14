@@ -1,5 +1,5 @@
 #include "observers/results-history.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include <pqxx/pqxx>
 #include <iostream>
 
@@ -29,6 +29,6 @@ void ResultsHistory::update(const std::unordered_map<std::string, std::vector<st
         txn.exec(query);
         txn.commit();
     } catch (const std::exception& e) {
-        logger.logMessage("ResultsHistory failed to update search count: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("ResultsHistory failed to update search count: " + std::string(e.what()));
     }
 }

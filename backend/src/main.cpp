@@ -9,7 +9,7 @@
 #include "indexer/index-builder.hpp"
 #include "model/file.hpp"
 #include "service/search-service.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include "config/config.hpp"
 #include "filters/query-parser.hpp"
 #include "filters/content-filter.hpp"
@@ -21,6 +21,7 @@
 #include "observers/results-history.hpp"
 #include "observers/search-history.hpp"
 #include "controller/query-suggestions-controller.hpp"
+#include "controller/logger-controller.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 
@@ -206,7 +207,6 @@ int main()
     SearchService searchService(&db);
     UsageStatsService usageStatsService(&db);
     IObserver* searchHistory = new SearchHistory();
-
     IObserver* resultsHistory = new ResultsHistory(&db);
 
     searchService.addObserver(searchHistory);
@@ -216,6 +216,7 @@ int main()
     SearchServiceController searchServiceController(&searchService);
     FileOpenController fileOpenController(&usageStatsService);
     QuerySuggestionsController querySuggestionsController(dynamic_cast<SearchHistory*>(searchHistory));
+    LoggerController loggerController;
 
     httplib::Server server;
 
@@ -223,6 +224,7 @@ int main()
     crawlServiceController.registerRoutes(server);
     searchServiceController.registerRoutes(server);
     querySuggestionsController.registerRoutes(server);
+    loggerController.registerRoutes(server);
 
     server.listen("0.0.0.0", 18018);
 

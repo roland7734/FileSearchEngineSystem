@@ -2,35 +2,32 @@
 #define LOGGER_HPP
 
 #include <string>
-#include <vector>
 #include <chrono>
-
+#include "ilogger.hpp"
 
 class Logger {
 public:
-    Logger(const std::string& logFilePath = "logfile.txt");
+    explicit Logger(ILogger* strategy);
+    void setStrategy(ILogger* strategy);
 
     void logStartCrawl(const std::string& basePath);
-    void logEndCrawl(std::chrono::duration<double> totalTime);
-    void logIndexedFiles(const int indexedFilesNumber, const int totalNumberOfd);
-    void logIgnoredFiles(const int ignoredFilesNumber);
+    void logEndCrawl(std::chrono::duration<double> duration);
+    void logIndexedFiles(int indexedFilesNumber, int totalFiles);
+    void logIgnoredFiles(int ignoredFilesNumber);
     void logTotalIndexationTime(std::chrono::duration<double> totalTime);
-    void logMessage(const std::string& message);
-    void logSearchPerformanceTextContent(const std::string& searchQuery, double duration);
-    void logSearchPerformanceFileName(const std::string& searchQuery, double duration);
-    void logSearchPerformanceQuery(const std::string& searchQuery, double duration);
-    void logUserSearchTextContent(const std::string& searchQuery, int resultsFound);
-    void logUserSearchQuery(const std::string& searchQuery, int resultsFound);
-    void logUserSearchFileName(const std::string& searchQuery, int resultsFound);
     void logFileWithNoData(const std::string& fileName);
     void logFileSizeDistribution(double avgSize, double maxSize, double minSize);
-
+    void logUserSearchFileName(const std::string& searchQuery, int resultsFound);
+    void logUserSearchTextContent(const std::string& searchQuery, int resultsFound);
+    void logSearchPerformanceFileName(const std::string& searchQuery, double duration);
+    void logSearchPerformanceTextContent(const std::string& searchQuery, double duration);
+    void logUserSearchQuery(const std::string& searchQuery, int resultsFound);
+    void logSearchPerformanceQuery(const std::string& searchQuery, double duration);
+    void logMessage(const std::string& message);
 
 private:
-    std::string logFilePath;
+    ILogger* loggerStrategy;
     void writeLog(const std::string& message);
 };
-
-extern Logger logger;
 
 #endif // LOGGER_HPP

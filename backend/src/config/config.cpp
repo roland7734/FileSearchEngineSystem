@@ -1,6 +1,6 @@
 #include <iostream>
 #include "config/config.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include <nlohmann/json.hpp>
 
 namespace Config {
@@ -10,12 +10,12 @@ namespace Config {
     }
 
     void logConfig() {
-            logger.logMessage("File Crawler Configuration:\n" + getConfigSummary());
+            LoggerManager::instance().logMessage("File Crawler Configuration:\n" + getConfigSummary());
     }
     void loadConfig(const std::string& configFilePath) {
         std::ifstream file(configFilePath);
         if (!file.is_open()) {
-            logger.logMessage("Error: Unable to open config file: " + configFilePath);
+            LoggerManager::instance().logMessage("Error: Unable to open config file: " + configFilePath);
             return;
         }
 
@@ -32,7 +32,7 @@ namespace Config {
 
 
         } catch (const std::exception& e) {
-            logger.logMessage("Error parsing config file: " + std::string(e.what()));
+            LoggerManager::instance().logMessage("Error parsing config file: " + std::string(e.what()));
         }
     }
 

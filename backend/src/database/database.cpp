@@ -1,7 +1,7 @@
 #include <iostream>
 #include "database/database.hpp"
 #include "config/config.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 
 Database::Database() : conn(nullptr) {}
 
@@ -9,7 +9,7 @@ Database::~Database() {
     if (conn!= nullptr) {
         delete conn;
         conn = nullptr;
-        logger.logMessage("Database connection closed.");
+        LoggerManager::instance().logMessage("Database connection closed.");
     }
 }
 
@@ -29,12 +29,12 @@ void Database::connect() {
         conn = new pqxx::connection(connection_string);
 
         if (conn->is_open()) {
-            logger.logMessage(std::string("Connected to database: ") + conn->dbname());
+            LoggerManager::instance().logMessage(std::string("Connected to database: ") + conn->dbname());
         } else {
             throw std::runtime_error("Failed to open database connection");
         }
 
     } catch (const std::exception& e) {
-        logger.logMessage("Error connecting to database: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Error connecting to database: " + std::string(e.what()));
     }
 }

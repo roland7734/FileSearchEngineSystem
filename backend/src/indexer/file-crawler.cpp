@@ -3,7 +3,7 @@
 #include "database/database.hpp"
 #include "model/file.hpp"
 #include "config/config.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include "utils/string-processor.hpp"
 #include <vector>
 #include <iostream>
@@ -22,7 +22,7 @@ std::string FileCrawler::getBasePath() const {
 std::vector<File> FileCrawler::getFilesRecursively() const {
     std::vector<File> files;
     files.reserve(Config::BATCH_SIZE);
-    logger.logStartCrawl(basePath);
+    LoggerManager::instance().logStartCrawl(basePath);
     auto start = std::chrono::high_resolution_clock::now();
     std::error_code err;
     int ignoredFiles = 0;
@@ -46,7 +46,7 @@ std::vector<File> FileCrawler::getFilesRecursively() const {
                 size_t fileSize = entry.file_size();
 
                 if (fileSize == 0) {
-                    logger.logFileWithNoData(filePath);
+                    LoggerManager::instance().logFileWithNoData(filePath);
                 }
 
                 auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
@@ -58,15 +58,15 @@ std::vector<File> FileCrawler::getFilesRecursively() const {
 
             }
             catch(const std::exception & e){
-                logger.logMessage("Error: " + std::string(e.what()));
+                LoggerManager::instance().logMessage("Error: " + std::string(e.what()));
             }
         }
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
-    logger.logEndCrawl(duration);
+    LoggerManager::instance().logEndCrawl(duration);
 
-    logger.logIgnoredFiles(ignoredFiles);
+    LoggerManager::instance().logIgnoredFiles(ignoredFiles);
 
     return files;
 }

@@ -1,5 +1,5 @@
 #include "service/usage-stats-service.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include <pqxx/pqxx>
 #include <iostream>
 
@@ -27,10 +27,10 @@ bool UsageStatsService::incrementColumn(const std::string& filePath, const std::
         );
 
         txn.commit();
-        logger.logMessage("Successfully incremented " + column + " for file: " + filePath);
+        LoggerManager::instance().logMessage("Successfully incremented " + column + " for file: " + filePath);
         return true;
     } catch (const std::exception& e) {
-        logger.logMessage("Error incrementing " + column + ": " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Error incrementing " + column + ": " + std::string(e.what()));
         return false;
     }
 }

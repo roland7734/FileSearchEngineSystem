@@ -2,7 +2,7 @@
 #include "service/insert-service.hpp"
 #include "database/database.hpp"
 #include "model/file.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include "utils/string-processor.hpp"
 #include "config/config.hpp"
 #include <iostream>
@@ -14,7 +14,7 @@ InsertService::InsertService(Database* db) : db(db) {}
 bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
     try {
         if (files.empty()) {
-            logger.logMessage("No files to insert.");
+            LoggerManager::instance().logMessage("No files to insert.");
             return true;
         }
 
@@ -66,14 +66,14 @@ bool InsertService::insertBatchToDatabase(const std::vector<File>& files) {
         txn.exec(query);
         txn.commit();
 
-        logger.logMessage("Batch insert of " + std::to_string(files.size()) + " files completed successfully.");
+        LoggerManager::instance().logMessage("Batch insert of " + std::to_string(files.size()) + " files completed successfully.");
         return true;
     } catch (const pqxx::sql_error& e) {
-        logger.logMessage("SQL error during batch insert: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("SQL error during batch insert: " + std::string(e.what()));
     } catch (const pqxx::broken_connection& e) {
-        logger.logMessage("Database connection error: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Database connection error: " + std::string(e.what()));
     } catch (const std::exception& e) {
-        logger.logMessage("Error during batch insert: " + std::string(e.what()));
+        LoggerManager::instance().logMessage("Error during batch insert: " + std::string(e.what()));
     }
     return false;
 }

@@ -2,7 +2,7 @@
 #include "database/database.hpp"
 #include "indexer/file-crawler.hpp"
 #include "config/config.hpp"
-#include "logger/logger.hpp"
+#include "logger/logger-manager.hpp"
 #include <iostream>
 #include <pqxx/pqxx>
 
@@ -15,11 +15,11 @@ void Indexer::indexTextFiles() {
     std::string basePath = crawler->getBasePath();
 
     if (std::filesystem::is_regular_file(basePath)) {
-        logger.logMessage("The path is a file, not a directory: \"" + basePath + "\". Indexing stopped.");
+        LoggerManager::instance().logMessage("The path is a file, not a directory: \"" + basePath + "\". Indexing stopped.");
         throw std::runtime_error("The path is a file, not a directory: \"" + basePath + "\". Indexing stopped.");
 
     } else if (!std::filesystem::is_directory(basePath)) {
-        logger.logMessage("The provided path is neither a valid directory nor a valid file: \"" + basePath+ "\". Indexing stopped.");
+        LoggerManager::instance().logMessage("The provided path is neither a valid directory nor a valid file: \"" + basePath+ "\". Indexing stopped.");
         throw std::runtime_error("The provided path is neither a valid directory nor a valid file: \"" + basePath + "\". Indexing stopped.");
     }
 
@@ -48,10 +48,10 @@ void Indexer::indexTextFiles() {
             batchNumber++;
             if(!insertService->insertBatchToDatabase(batch))
                 {
-                    logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
+                    LoggerManager::instance().logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
                 }
             else {
-                logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
+                LoggerManager::instance().logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
                 indexedFiles += batch.size();
             }
             batch.clear();
@@ -62,10 +62,10 @@ void Indexer::indexTextFiles() {
         batchNumber++;
         if(!insertService->insertBatchToDatabase(batch))
         {
-            logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
+            LoggerManager::instance().logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " has failed.");
         }
         else {
-            logger.logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
+            LoggerManager::instance().logMessage("Insertion of Batch " + std::to_string(batchNumber) + "/" + std::to_string(numberOfBatches) + " was successful.");
             indexedFiles += batch.size();
         }
         batch.clear();
@@ -74,13 +74,13 @@ void Indexer::indexTextFiles() {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    logger.logIndexedFiles(indexedFiles, files.size());
-    logger.logTotalIndexationTime(duration);
+    LoggerManager::instance().logIndexedFiles(indexedFiles, files.size());
+    LoggerManager::instance().logTotalIndexationTime(duration);
 
     if (!files.empty()) {
         double avgSize = static_cast<double>(totalSize) / files.size();
-        logger.logFileSizeDistribution(avgSize, maxSize, minSize);
+        LoggerManager::instance().logFileSizeDistribution(avgSize, maxSize, minSize);
     }
 
-    logger.logMessage("Indexing completed for path: \"" + crawler->getBasePath()+"\".");
+    LoggerManager::instance().logMessage("Indexing completed for path: \"" + crawler->getBasePath()+"\".");
 }
