@@ -4,6 +4,7 @@ import Header from "./components/Header/Header";
 import CrawlPage from "./components/CrawlPage/CrawlPage";
 import HomePage from "./components/HomePage/HomePage";
 import SearchPage from "./components/SearchPage/SearchPage";
+import StrategyPage from "./components/StrategyPage/StrategyPage";
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/crawl" element={<CrawlPage />} />
+        <Route path="/strategy" element={<StrategyPage />} />
       </Routes>
     </Router>
   );

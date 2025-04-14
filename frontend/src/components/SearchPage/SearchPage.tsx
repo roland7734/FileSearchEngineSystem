@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TextField, Button, Box, Typography, Modal } from "@mui/material";
 import { searchFiles } from "../../api/search";
 import { SearchResult } from "../../models/searchResult";
 import SearchCard from "../SearchCard/SearchCard";
+import { getSearchSuggestions } from "../../api/suggestions";
+import { SearchSuggestions } from "../../models/searchSuggestions";
+import SmartSearchInput from "../SmartSearchInput/SmartSearchInput";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<SearchSuggestions | null>(
+    null
+  );
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -16,6 +22,17 @@ const SearchPage: React.FC = () => {
     buttons.forEach((btn) => {
       (btn as HTMLButtonElement).disabled = disable;
     });
+  };
+
+  const fetchSuggestions = async () => {
+    try {
+      const data = await getSearchSuggestions();
+      setSuggestions(data);
+      console.log("Fetched suggestions:", data);
+    } catch (error: any) {
+      console.log("error" + error.data);
+      setSuggestions(null); // fail gracefully
+    }
   };
 
   const handleSearch = async () => {
@@ -29,7 +46,9 @@ const SearchPage: React.FC = () => {
     toggleButtons(true);
     try {
       const data = await searchFiles(query);
+      const dataSuggestions = await getSearchSuggestions();
       setResults(data.results);
+      setSuggestions(dataSuggestions);
       setModalMessage(
         "Search completed. Found " + data.results.length + " results."
       );
@@ -48,15 +67,24 @@ const SearchPage: React.FC = () => {
     setResults([]);
   };
 
+  useEffect(() => {
+    fetchSuggestions();
+  }, []);
+
   return (
     <Box sx={{ padding: 3, textAlign: "center" }}>
-      <TextField
-        label="Search Query"
-        variant="outlined"
-        fullWidth
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        sx={{ marginBottom: 2 }}
+      <SmartSearchInput
+        suggestions={
+          suggestions || {
+            accesstime: [],
+            content: [],
+            mimetype: [],
+            path: [],
+            size: [],
+          }
+        }
+        query={query}
+        setQuery={setQuery}
       />
       <Box display="flex" justifyContent="center" gap={2}>
         <Button variant="contained" onClick={handleSearch} disabled={loading}>

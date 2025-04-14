@@ -22,6 +22,10 @@ const Header: React.FC = () => {
           <Button color="inherit" onClick={() => navigate("/crawl")}>
             Crawl
           </Button>
+          {/* Strategy button to navigate to StrategyPage */}
+          <Button color="inherit" onClick={() => navigate("/strategy")}>
+            Strategy
+          </Button>
         </Toolbar>
       </Container>
     </AppBar>
