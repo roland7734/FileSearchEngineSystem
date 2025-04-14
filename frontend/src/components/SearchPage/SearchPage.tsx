@@ -31,7 +31,7 @@ const SearchPage: React.FC = () => {
       console.log("Fetched suggestions:", data);
     } catch (error: any) {
       console.log("error" + error.data);
-      setSuggestions(null); // fail gracefully
+      setSuggestions(null);
     }
   };
 
@@ -86,7 +86,7 @@ const SearchPage: React.FC = () => {
         query={query}
         setQuery={setQuery}
       />
-      <Box display="flex" justifyContent="center" gap={2}>
+      <Box display="flex" justifyContent="center" gap={2} sx={{ marginTop: 3 }}>
         <Button variant="contained" onClick={handleSearch} disabled={loading}>
           {loading ? "Searching..." : "Search"}
         </Button>

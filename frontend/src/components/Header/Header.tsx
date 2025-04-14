@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 
@@ -8,11 +8,11 @@ const Header: React.FC = () => {
 
   return (
     <AppBar position="static" className="header">
-      <Container maxWidth="lg">
-        <Toolbar className="toolbar">
-          <Typography variant="h6" className="title">
-            File Search Engine
-          </Typography>
+      <Toolbar className="toolbar">
+        <Typography variant="h6" className="title">
+          File Search Engine
+        </Typography>
+        <Box className="nav-buttons">
           <Button color="inherit" onClick={() => navigate("/")}>
             Home
           </Button>
@@ -22,12 +22,11 @@ const Header: React.FC = () => {
           <Button color="inherit" onClick={() => navigate("/crawl")}>
             Crawl
           </Button>
-          {/* Strategy button to navigate to StrategyPage */}
           <Button color="inherit" onClick={() => navigate("/strategy")}>
             Strategy
           </Button>
-        </Toolbar>
-      </Container>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 };

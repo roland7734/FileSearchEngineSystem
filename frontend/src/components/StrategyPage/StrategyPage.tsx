@@ -16,15 +16,14 @@ import { LoggerStrategyRequest } from "../../models/loggerStrategyRequest";
 
 const StrategyPage: React.FC = () => {
   const navigate = useNavigate();
-  const [loggerType, setLoggerType] = useState<"html" | "text">("html"); // Default to 'html'
-  const [filePath, setFilePath] = useState<string>(""); // Input for the file path
+  const [loggerType, setLoggerType] = useState<"html" | "text">("html");
+  const [filePath, setFilePath] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
-  // Function to handle strategy change
   const handleStrategyChange = async () => {
     const strategyRequest: LoggerStrategyRequest = {
       type: loggerType,
-      path: filePath, // Only provide path if type is html or text
+      path: filePath,
     };
 
     try {
@@ -42,7 +41,6 @@ const StrategyPage: React.FC = () => {
           Change Logger Strategy
         </Typography>
 
-        {/* Select the logger type (HTML or Text) */}
         <FormControl fullWidth variant="outlined" margin="normal">
           <InputLabel id="logger-type-label">Logger Type</InputLabel>
           <Select
@@ -56,7 +54,6 @@ const StrategyPage: React.FC = () => {
           </Select>
         </FormControl>
 
-        {/* Input for the file path (only needed if HTML or Text is selected) */}
         <TextField
           label="Log File Path"
           variant="outlined"
@@ -66,7 +63,6 @@ const StrategyPage: React.FC = () => {
           margin="normal"
         />
 
-        {/* Button to change strategy */}
         <Button
           onClick={handleStrategyChange}
           color="primary"
@@ -75,7 +71,6 @@ const StrategyPage: React.FC = () => {
           Change Strategy
         </Button>
 
-        {/* Displaying message after operation */}
         {message && (
           <Typography variant="body1" mt={2}>
             {message}

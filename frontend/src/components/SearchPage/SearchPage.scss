@@ -1,14 +1,41 @@
-.search-card {
-  margin-bottom: 1rem;
-  cursor: pointer;
-}
+.search-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100px 20px 40px 20px;
 
-.path {
-  font-weight: bold;
-  word-break: break-all;
-}
+  .search-input-wrapper {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+  }
 
-.preview {
-  color: gray;
-  margin-top: 0.5rem;
+  .buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+
+    button {
+      min-width: 120px;
+    }
+  }
+
+  .results {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 40px;
+  }
+
+  .modal-box {
+    background-color: white;
+    padding: 30px;
+    margin: auto;
+    margin-top: 20vh;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
 }

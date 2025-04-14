@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 
 export const getSearchSuggestions = async (): Promise<SearchSuggestions> => {
   try {
-    const response = await axiosInstance.get<SearchSuggestions>("/suggestions"); // change the endpoint if needed
+    const response = await axiosInstance.get<SearchSuggestions>("/suggestions");
     return response.data;
   } catch (error: any) {
     console.error("Error fetching suggestions:", error);

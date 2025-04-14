@@ -9,6 +9,8 @@ const HomePage: React.FC = () => {
       alignItems="center"
       justifyContent="center"
       height="70vh"
+      textAlign="center"
+      px={2}
     >
       <Typography variant="h3">Welcome to the File Search Engine</Typography>
       <Typography variant="h6" mt={2}>
