@@ -101,5 +101,7 @@ void File::extractTextContent() {
     }
 }
 
+void File::setScore(double s) { score = s; }
+void File::setTextContent(std::string text) { textContent = text; }
 
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import { SearchSuggestions } from "../../models/searchSuggestions";
 
@@ -13,53 +13,76 @@ const SmartSearchInput: React.FC<SmartSearchInputProps> = ({
   query,
   setQuery,
 }) => {
-  const [options, setOptions] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState("");
-
-  useEffect(() => {
-    const parts = query.trim().split(/\s+/);
+  const options = useMemo(() => {
+    const endsWithSpace = query.endsWith(" ") || false;
+    const trimmedQuery = query.trimEnd();
+    const parts = trimmedQuery.split(/\s+/); // split into tokens
     const lastPart = parts[parts.length - 1] || "";
 
-    if (!lastPart.includes(":")) {
-      const matchingKeys = Object.keys(suggestions).filter((key) =>
-        key.startsWith(lastPart)
-      );
-      setOptions(matchingKeys.map((key) => `${key}:`));
-    } else {
-      const [key, partialValue = ""] = lastPart.split(":");
-      const values = suggestions[key] || [];
-      setOptions(
-        values
-          .filter((v) => v.startsWith(partialValue))
-          .map((v) => `${key}:${v}`)
-      );
+    // return ["ana", "mere"];
+    // Case 1: If last part is empty (user typed space at the end), suggest new keys
+    if (endsWithSpace || trimmedQuery === "") {
+      return Object.keys(suggestions).map((key) => `${key}:`);
     }
 
-    setInputValue(lastPart);
+    // Case 2: User is typing a key (no colon yet)
+    if (!lastPart.includes(":")) {
+      return Object.keys(suggestions)
+        .filter((key) => key.startsWith(lastPart))
+        .map((key) => `${key}:`);
+    }
+
+    // Case 3: User is typing a value
+    const [key, partialValue = ""] = lastPart.split(":");
+    const values = suggestions[key] || [];
+    return values
+      .filter((v) => v.startsWith(partialValue))
+      .map((v) => `${key}:${v}`);
+  }, [query, suggestions]);
+
+  useEffect(() => {
+    const endsWithSpace = query.endsWith(" ") || false;
+    const trimmedQuery = query.trimEnd();
+    const parts = trimmedQuery.split(/\s+/);
+    const lastPart = parts[parts.length - 1] || "";
+
+    console.log("DEBUG ----");
+    console.log("Query:", query);
+    console.log("Ends with space:", endsWithSpace);
+    console.log("Trimmed Query:", trimmedQuery);
+    console.log("Parts:", parts);
+    console.log("Last Part:", lastPart);
+    console.log("Suggestions:", options);
+    console.log("------------");
+    console.log(options);
   }, [query, suggestions]);
 
   const handleChange = (_: any, newValue: string | null) => {
     if (!newValue) return;
 
-    const parts = query.trim().split(/\s+/);
-    parts[parts.length - 1] = newValue;
-    const updatedQuery = parts.join(" ");
-    setQuery(updatedQuery + " ");
-    setInputValue("");
+    const endsWithSpace = /\s+$/.test(query);
+    const parts = query.trimEnd().split(/\s+/);
+
+    if (endsWithSpace || parts.length === 0) {
+      setQuery(query + newValue + " ");
+    } else {
+      parts[parts.length - 1] = newValue;
+      setQuery(parts.join(" ") + " ");
+    }
   };
 
   return (
     <Autocomplete
       freeSolo
       disableClearable
+      autoHighlight
+      openOnFocus
+      filterOptions={(x) => x}
       options={options}
-      inputValue={inputValue}
+      inputValue={query}
       onInputChange={(_, value, reason) => {
         if (reason === "input") {
-          const parts = query.trim().split(/\s+/);
-          parts[parts.length - 1] = value;
-          setQuery(parts.join(" "));
-          setInputValue(value);
+          setQuery(value);
         }
       }}
       onChange={handleChange}

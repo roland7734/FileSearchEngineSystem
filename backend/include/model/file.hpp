@@ -17,6 +17,9 @@ public:
     std::time_t getCreatedAt() const;
     std::string getMimeType() const;
     double getScore() const;
+    void setScore(double s);
+    void setTextContent(std::string text);
+
 
 private:
     void determineMimeType();
