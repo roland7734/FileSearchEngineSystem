@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { TextField, Button, Box, Typography, Modal } from "@mui/material";
 import { searchFiles } from "../../api/search";
-import { SearchResult } from "../../models/searchResult";
+import { SearchAggregates, SearchResult } from "../../models/searchResult";
 import SearchCard from "../SearchCard/SearchCard";
 import { getSearchSuggestions } from "../../api/suggestions";
 import { SearchSuggestions } from "../../models/searchSuggestions";
 import SmartSearchInput from "../SmartSearchInput/SmartSearchInput";
+import Aggregates from "../Aggregates/Aggregates";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -13,6 +14,7 @@ const SearchPage: React.FC = () => {
     null
   );
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [aggregates, setAggregates] = useState<SearchAggregates | null>(null);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -48,6 +50,7 @@ const SearchPage: React.FC = () => {
       const data = await searchFiles(query);
       const dataSuggestions = await getSearchSuggestions();
       setResults(data.results);
+      setAggregates(data.aggregates);
       setSuggestions(dataSuggestions);
       setModalMessage(
         "Search completed. Found " + data.results.length + " results."
@@ -94,6 +97,13 @@ const SearchPage: React.FC = () => {
           Cancel
         </Button>
       </Box>
+      {/* add here a component that will display the aggregates */}
+      {results.length > 0 && aggregates && (
+        <Box mt={4}>
+          <Aggregates aggregates={aggregates} />
+        </Box>
+      )}
+
       <Box mt={4}>
         {results.map((r, i) => (
           <SearchCard key={i} path={r.path} preview={r.preview} />

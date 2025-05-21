@@ -1,6 +1,7 @@
+import { SearchResponse } from "../models/searchResult";
 import axiosInstance from "./axiosInstance";
 
-export const searchFiles = async (query: string) => {
+export const searchFiles = async (query: string): Promise<SearchResponse> => {
   try {
     const response = await axiosInstance.get(
       `/search?query=${encodeURIComponent(query)}`

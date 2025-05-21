@@ -1,0 +1,28 @@
+.aggregates-wrapper {
+  margin-top: 24px;
+  overflow-x: auto;
+}
+
+.aggregates-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.aggregates-table th {
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+.aggregates-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
