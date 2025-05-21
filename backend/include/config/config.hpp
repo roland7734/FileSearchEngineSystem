@@ -43,6 +43,21 @@ namespace Config {
             ".elm", ".hs"
     };
 
+    const std::unordered_map<std::string, std::string> EXTENSION_TO_LANGUAGE = {
+            {".cpp", "C++"}, {".h", "C/C++ Header"}, {".hpp", "C++"},
+            {".py", "Python"}, {".java", "Java"}, {".js", "JavaScript"},
+            {".html", "HTML"}, {".css", "CSS"}, {".json", "JSON"},
+            {".xml", "XML"}, {".yaml", "YAML"}, {".yml", "YAML"},
+            {".sh", "Shell"}, {".bat", "Batch"}, {".sql", "SQL"},
+            {".php", "PHP"}, {".rb", "Ruby"}, {".swift", "Swift"},
+            {".kt", "Kotlin"}, {".rs", "Rust"}, {".go", "Go"},
+            {".pl", "Perl"}, {".r", "R"}, {".lua", "Lua"},
+            {".elm", "Elm"}, {".hs", "Haskell"}, {".md", "Markdown"},
+            {".ini", "INI"}, {".csv", "CSV"}, {".tsv", "TSV"},
+            {".log", "Log"}
+    };
+
+
     std::string getConfigSummary();
     void loadConfig(const std::string& configFilePath);
 

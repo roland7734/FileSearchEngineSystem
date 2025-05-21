@@ -156,7 +156,9 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
         pqxx::work txn(*conn);
 
         std::string base_query = "SET enable_nestloop = off; "
-                                 "SELECT files.id, path, LEFT(text_content, 100) "
+                                 "SELECT files.id, path, LEFT(text_content, 100),  file_metadata.size, "
+                                 " file_metadata.mime_type, "
+                                 " file_metadata.created_at "
                                  "FROM files JOIN file_metadata ON files.id = file_metadata.file_id "
                                  "LEFT JOIN file_usage_stats ON file_usage_stats.file_id = files.id";
         std::vector<std::string> where_clauses;
@@ -187,7 +189,24 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
         pqxx::result result = txn.exec(base_query);
         txn.commit();
         for (const auto &row: result) {
-            results.emplace_back(row[1].c_str(), row[2].c_str());
+            std::string timestampStr = row[5].c_str();
+            std::tm tm = {};
+            std::istringstream ss(timestampStr);
+            ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+            if (ss.fail()) {
+                throw std::runtime_error("Failed to parse timestamp: " + timestampStr);
+            }
+
+            std::time_t createdAt = std::mktime(&tm);
+
+            results.emplace_back(
+                    row[1].c_str(),
+                    static_cast<size_t>(row[3].as<long>()),
+                    createdAt,
+                    row[4].c_str(),
+                    row[2].c_str()
+                    );
             fileIds.insert(row[0].as<int>());
         }
 

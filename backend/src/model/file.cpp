@@ -19,6 +19,10 @@ File::File(const std::string& path, size_t size, std::time_t createdAt)
 File::File(const std::string& path, const std::string& textContent)
         : path(path), textContent(textContent){}
 
+File::File(const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
+          std::string textContent)
+: path(path), size(size), createdAt(createdAt), mimeType(mimeType), textContent(textContent){}
+
 std::string File::getPath() const {
     return path;
 }

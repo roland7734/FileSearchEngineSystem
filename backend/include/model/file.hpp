@@ -8,6 +8,8 @@ class File {
 public:
     File(const std::string& path, size_t size, std::time_t createdAt = std::time(nullptr));
     File(const std::string& path, const std::string& textContent);
+    File(const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
+               std::string textContent);
 
     std::string getName() const;
     std::string getExtension() const;
