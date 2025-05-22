@@ -29,7 +29,6 @@ void LoggerController::registerRoutes(httplib::Server& server) {
                         std::make_unique<TextLoggerStrategy>(path.empty() ? "logfile.txt" : path).release()
                 );
 
-//                LoggerManager::instance().setStrategy(std::make_unique<TextLoggerStrategy>(path.empty() ? "logfile.txt" : path));
             } else {
                 res.status = 400;
                 res.set_content(R"({"error":"Invalid logger type. Use 'html' or 'text'."})", "application/json");

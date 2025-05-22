@@ -15,6 +15,13 @@ void QuerySuggestionsController::registerRoutes(httplib::Server& server) {
     server.Get("/suggestions", [this](const httplib::Request& req, httplib::Response& res) {
         try {
             const auto& suggestionsMap = searchHistory->getSuggestions();
+
+            if (suggestionsMap.empty()) {
+                res.set_header("Access-Control-Allow-Origin", "*");
+                res.set_content("", "application/json");
+                return;
+            }
+
             nlohmann::json json_response;
 
             for (const auto& [key, list] : suggestionsMap) {

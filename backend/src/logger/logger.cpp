@@ -4,7 +4,6 @@
 #include <ctime>
 #include "logger/logger-manager.hpp"
 
-//Logger logger();
 
 Logger::Logger(ILogger* strategy) : loggerStrategy(strategy) {
     logMessage("File Search Engine Log Started");

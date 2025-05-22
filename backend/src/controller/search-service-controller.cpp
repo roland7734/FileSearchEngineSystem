@@ -2,6 +2,10 @@
 #include "service/search-service.hpp"
 #include "filters/query-parser.hpp"
 #include "config/config.hpp"
+#include "spelling-corrector/ispelling-correction-strategy.hpp"
+#include "spelling-corrector/language-model.hpp"
+#include "spelling-corrector/norvig-spelling-corrector.hpp"
+#include "spelling-corrector/no-correction.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
@@ -18,11 +22,30 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
     server.Get("/search", [this](const httplib::Request& req, httplib::Response& res) {
         try {
             std::string query = req.get_param_value("query");
+            std::string strategyName = req.has_param("strategy") ? req.get_param_value("strategy") : "none";
+
+            std::unique_ptr<ISpellingCorrectionStrategy> strategy;
+
+            if (strategyName == "norvig") {
+                auto& freqDict = LanguageModel::getInstance("big.txt").getWordFrequencies();
+                strategy = std::make_unique<NorvigSpellingCorrector>(freqDict);
+            } else if (strategyName == "none") {
+                strategy = std::make_unique<NoCorrection>();
+            } else {
+                res.status = 400;
+                res.set_content("Invalid correction strategy.", "text/plain");
+                res.set_header("Access-Control-Allow-Origin", "*");
+                return;
+            }
+
             if (!query.empty()) {
-                auto filters = QueryParser::parse(query);
+                std::string corrected = strategy->correctQuery(query);
+                std::cout<<corrected;
+                auto filters = QueryParser::parse(corrected);
                 std::vector<File> files = searchService->searchQuery(filters);
 
                 nlohmann::json json_response;
+                json_response["corrected_query"] = corrected;
                 json_response["count"] = files.size();
                 json_response["results"] = nlohmann::json::array();
 

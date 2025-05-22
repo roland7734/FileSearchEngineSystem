@@ -22,6 +22,7 @@
 #include "observers/search-history.hpp"
 #include "controller/query-suggestions-controller.hpp"
 #include "controller/logger-controller.hpp"
+#include "spelling-corrector/language-model.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 
@@ -208,6 +209,8 @@ int main()
     UsageStatsService usageStatsService(&db);
     IObserver* searchHistory = new SearchHistory();
     IObserver* resultsHistory = new ResultsHistory(&db);
+    std::cout << "Loading big.txt..." << std::endl;
+    auto& freqDict = LanguageModel::getInstance("big.txt").getWordFrequencies();
 
     searchService.addObserver(searchHistory);
     searchService.addObserver(resultsHistory);
@@ -226,7 +229,9 @@ int main()
     querySuggestionsController.registerRoutes(server);
     loggerController.registerRoutes(server);
 
+    std::cout << "Server is running on http://localhost:18018" << std::endl;
     server.listen("0.0.0.0", 18018);
+
 
     return 0;
 }
