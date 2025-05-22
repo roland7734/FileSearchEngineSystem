@@ -3,15 +3,16 @@
 
 #include "icontroller.hpp"
 #include "service/search-service.hpp"
+#include "cache/cached-search-service.hpp"
 
 
 class SearchServiceController : public IController {
 public:
-    explicit SearchServiceController(SearchService* searchService);
+    explicit SearchServiceController(CachedSearchService* searchService);
     void registerRoutes(httplib::Server& server) override;
 
 private:
-    SearchService* searchService;
+    CachedSearchService* searchService;
 };
 
 #endif // SEARCH_SERVICE_CONTROLLER_HPP

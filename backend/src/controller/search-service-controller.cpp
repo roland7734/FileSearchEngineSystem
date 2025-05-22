@@ -9,7 +9,7 @@
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
-SearchServiceController::SearchServiceController(SearchService* searchService) : searchService(searchService) {}
+SearchServiceController::SearchServiceController(CachedSearchService* searchService) : searchService(searchService) {}
 
 void SearchServiceController::registerRoutes(httplib::Server& server) {
     server.Options("/search", [](const httplib::Request& req, httplib::Response& res) {

@@ -201,6 +201,7 @@ std::vector<File> SearchService::searchQuery(const std::vector<std::unique_ptr<I
             std::time_t createdAt = std::mktime(&tm);
 
             results.emplace_back(
+                    row[0].as<int>(),
                     row[1].c_str(),
                     static_cast<size_t>(row[3].as<long>()),
                     createdAt,

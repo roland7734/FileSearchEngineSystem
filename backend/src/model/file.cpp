@@ -19,9 +19,9 @@ File::File(const std::string& path, size_t size, std::time_t createdAt)
 File::File(const std::string& path, const std::string& textContent)
         : path(path), textContent(textContent){}
 
-File::File(const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
+File::File(const int id, const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
           std::string textContent)
-: path(path), size(size), createdAt(createdAt), mimeType(mimeType), textContent(textContent){}
+: id(id), path(path), size(size), createdAt(createdAt), mimeType(mimeType), textContent(textContent){}
 
 std::string File::getPath() const {
     return path;
@@ -34,6 +34,11 @@ std::string File::getTextContent() const {
 size_t File::getSize() const {
     return size;
 }
+
+int File::getID() const{
+    return id;
+}
+
 
 std::time_t File::getCreatedAt() const {
     return createdAt;

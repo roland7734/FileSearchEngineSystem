@@ -8,9 +8,10 @@ class File {
 public:
     File(const std::string& path, size_t size, std::time_t createdAt = std::time(nullptr));
     File(const std::string& path, const std::string& textContent);
-    File(const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
-               std::string textContent);
+    File(const int id, const std::string& path, size_t size, std::time_t createdAt, const std::string& mimeType,
+         std::string textContent);
 
+    int getID() const;
     std::string getName() const;
     std::string getExtension() const;
     std::string getPath() const;
@@ -33,6 +34,7 @@ private:
     std::time_t createdAt;
     std::string mimeType;
     std::string textContent;
+    int id;
     double score;
 };
 

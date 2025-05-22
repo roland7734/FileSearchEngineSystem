@@ -204,19 +204,23 @@ int main()
 
     Database db;
     db.connect();
+    std::shared_ptr<ISearchService> baseSearchService = std::make_shared<SearchService>(&db);
+    std::shared_ptr<CachedSearchService> cachedSearchService = std::make_shared<CachedSearchService>(baseSearchService);
+
     InsertService insertService(&db);
-    SearchService searchService(&db);
+
     UsageStatsService usageStatsService(&db);
     IObserver* searchHistory = new SearchHistory();
     IObserver* resultsHistory = new ResultsHistory(&db);
     std::cout << "Loading big.txt..." << std::endl;
-    auto& freqDict = LanguageModel::getInstance("big.txt").getWordFrequencies();
+//    auto& freqDict = LanguageModel::getInstance("big.txt").getWordFrequencies();
 
-    searchService.addObserver(searchHistory);
-    searchService.addObserver(resultsHistory);
+    cachedSearchService->addObserver(searchHistory);
+    cachedSearchService->addObserver(resultsHistory);
+
 
     CrawlServiceController crawlServiceController(&insertService);
-    SearchServiceController searchServiceController(&searchService);
+    SearchServiceController searchServiceController(cachedSearchService.get());
     FileOpenController fileOpenController(&usageStatsService);
     QuerySuggestionsController querySuggestionsController(dynamic_cast<SearchHistory*>(searchHistory));
     LoggerController loggerController;
