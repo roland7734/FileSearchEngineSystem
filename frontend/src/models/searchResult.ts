@@ -14,6 +14,7 @@ export interface SearchAggregates {
 }
 
 export interface SearchResponse {
+  corrected_query: string;
   count: number;
   results: SearchResult[];
   aggregates: SearchAggregates;

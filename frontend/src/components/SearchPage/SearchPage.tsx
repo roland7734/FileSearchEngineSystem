@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TextField, Button, Box, Typography, Modal } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { searchFiles } from "../../api/search";
 import { SearchAggregates, SearchResult } from "../../models/searchResult";
 import SearchCard from "../SearchCard/SearchCard";
@@ -18,6 +19,7 @@ const SearchPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [strategy, setStrategy] = useState("none");
 
   const toggleButtons = (disable: boolean) => {
     const buttons = document.querySelectorAll("button");
@@ -47,7 +49,10 @@ const SearchPage: React.FC = () => {
     setLoading(true);
     toggleButtons(true);
     try {
-      const data = await searchFiles(query);
+      const data = await searchFiles(query, strategy.toLowerCase());
+      if (data.corrected_query && data.corrected_query !== query) {
+        setQuery(data.corrected_query);
+      }
       const dataSuggestions = await getSearchSuggestions();
       setResults(data.results);
       setAggregates(data.aggregates);
@@ -75,7 +80,20 @@ const SearchPage: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: 3, textAlign: "center" }}>
+    <Box sx={{ padding: 3, textAlign: "left" }}>
+      <FormControl fullWidth sx={{ margin: "auto", marginBottom: 2 }}>
+        <InputLabel id="strategy-label">Correction Strategy</InputLabel>
+        <Select
+          labelId="strategy-label"
+          id="strategy-select"
+          value={strategy}
+          label="Correction Strategy"
+          onChange={(e) => setStrategy(e.target.value)}
+        >
+          <MenuItem value="norvig">Norvig</MenuItem>
+          <MenuItem value="none">None</MenuItem>
+        </Select>
+      </FormControl>
       <SmartSearchInput
         suggestions={
           suggestions || {
@@ -97,7 +115,6 @@ const SearchPage: React.FC = () => {
           Cancel
         </Button>
       </Box>
-      {/* add here a component that will display the aggregates */}
       {results.length > 0 && aggregates && (
         <Box mt={4}>
           <Aggregates aggregates={aggregates} />

@@ -13,6 +13,8 @@ const SmartSearchInput: React.FC<SmartSearchInputProps> = ({
   query,
   setQuery,
 }) => {
+  const fixedKeys = ["accesstime", "content", "mimetype", "path", "size"];
+
   const options = useMemo(() => {
     const endsWithSpace = query.endsWith(" ") || false;
     const trimmedQuery = query.trimEnd();
@@ -20,11 +22,11 @@ const SmartSearchInput: React.FC<SmartSearchInputProps> = ({
     const lastPart = parts[parts.length - 1] || "";
 
     if (endsWithSpace || trimmedQuery === "") {
-      return Object.keys(suggestions).map((key) => `${key}:`);
+      return fixedKeys.map((key) => `${key}:`);
     }
 
     if (!lastPart.includes(":")) {
-      return Object.keys(suggestions)
+      return fixedKeys
         .filter((key) => key.startsWith(lastPart))
         .map((key) => `${key}:`);
     }
