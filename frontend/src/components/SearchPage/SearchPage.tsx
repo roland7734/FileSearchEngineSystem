@@ -13,6 +13,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import SchoolIcon from "@mui/icons-material/School";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import MonthlyHistogram from "../MonthlyHistogram/MonthlyHostogram";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -28,6 +29,9 @@ const SearchPage: React.FC = () => {
   const [widgets, setWidgets] = useState<string[]>([]);
   const [folders, setFolders] = useState<string[]>([]);
   const [queryWidgets, setQueryWidgets] = useState<string[]>([]);
+  const [monthlyCounts, setMonthlyCounts] = useState<{
+    [month: string]: number;
+  } | null>(null);
 
   const toggleButtons = (disable: boolean) => {
     const buttons = document.querySelectorAll("button");
@@ -68,6 +72,7 @@ const SearchPage: React.FC = () => {
       setFolders(data.folders || []);
       setQueryWidgets(data.query_widgets || []);
       setSuggestions(dataSuggestions);
+      setMonthlyCounts(data.monthly_counts || null);
       setModalMessage(
         "Search completed. Found " + data.results.length + " results."
       );
@@ -146,6 +151,8 @@ const SearchPage: React.FC = () => {
           Cancel
         </Button>
       </Box>
+      {monthlyCounts && <MonthlyHistogram data={monthlyCounts} />}
+
       {queryWidgets.length > 0 && (
         <Box mt={5}>
           <Typography variant="h5" fontWeight="bold" gutterBottom>

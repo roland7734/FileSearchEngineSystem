@@ -21,4 +21,5 @@ export interface SearchResponse {
   widgets: string[];
   folders: string[];
   query_widgets: string[];
+  monthly_counts?: { [month: string]: number };
 }
