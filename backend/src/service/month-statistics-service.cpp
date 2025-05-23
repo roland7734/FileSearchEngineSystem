@@ -20,7 +20,7 @@ nlohmann::json MonthStatisticsService::getFileCountsByMonthForYear(int year) {
         pqxx::result result = txn.exec_params(query, year);
 
         for (const auto& row : result) {
-            std::string month = row[0].c_str();  // "01", "02", etc.
+            std::string month = row[0].c_str();
             int count = row[1].as<int>();
             resultJson[month] = count;
         }

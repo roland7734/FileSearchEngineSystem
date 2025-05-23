@@ -6,12 +6,15 @@
 
 class LanguageModel {
 public:
-    static LanguageModel& getInstance(const std::string& corpusPath = "big.txt");
+    static LanguageModel& getInstance(const std::string& path = "big_cache.json");
 
     const std::unordered_map<std::string, int>& getWordFrequencies() const;
 
 private:
-    LanguageModel(const std::string& corpusPath);
+    LanguageModel(const std::string& path);
+    void loadFromJson(const std::string& filename);
+    void buildFromTextFile(const std::string& filename);
+
     std::unordered_map<std::string, int> wordFrequencies;
 };
 

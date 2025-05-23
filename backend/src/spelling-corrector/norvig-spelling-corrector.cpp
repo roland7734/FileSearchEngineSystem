@@ -2,6 +2,8 @@
 #include <regex>
 #include <algorithm>
 #include <sstream>
+#include <iostream>
+#include <unordered_set>
 
 NorvigSpellingCorrector::NorvigSpellingCorrector(const std::unordered_map<std::string, int>& freqDict)
         : wordFrequencies(freqDict) {}
@@ -12,45 +14,27 @@ std::string NorvigSpellingCorrector::toLower(const std::string& word) {
     return res;
 }
 
-std::vector<std::string> NorvigSpellingCorrector::tokenize(const std::string& text) {
-    std::vector<std::string> tokens;
-    std::regex wordRegex(R"(\w+)");
-    auto begin = std::sregex_iterator(text.begin(), text.end(), wordRegex);
-    auto end = std::sregex_iterator();
 
-    for (auto it = begin; it != end; ++it)
-        tokens.push_back(it->str());
-    return tokens;
-}
-
-std::unordered_set<std::string> NorvigSpellingCorrector::known(const std::vector<std::string>& words) {
-    std::unordered_set<std::string> result;
-    for (const auto& w : words)
-        if (wordFrequencies.find(w) != wordFrequencies.end())
-            result.insert(w);
-    return result;
-}
-
-std::vector<std::string> NorvigSpellingCorrector::edits1(const std::string& word) {
+std::unordered_set<std::string> NorvigSpellingCorrector::edits1(const std::string& word) {
     static const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
-    std::vector<std::string> edits;
+    std::unordered_set<std::string> edits;
     size_t len = word.length();
 
     for (size_t i = 0; i <= len; ++i) {
         std::string L = word.substr(0, i);
         std::string R = word.substr(i);
-        if (!R.empty()) edits.push_back(L + R.substr(1));
-        if (R.length() > 1) edits.push_back(L + R[1] + R[0] + R.substr(2));
+        if (!R.empty()) edits.insert(L + R.substr(1));
+        if (R.length() > 1) edits.insert(L + R[1] + R[0] + R.substr(2));
         for (char c : alphabet) {
-            if (!R.empty()) edits.push_back(L + c + R.substr(1));
-            edits.push_back(L + c + R);
+            if (!R.empty()) edits.insert(L + c + R.substr(1));
+            edits.insert(L + c + R);
         }
     }
     return edits;
 }
 
-std::string NorvigSpellingCorrector::mostProbable(const std::vector<std::string>& candidates) {
-    std::string best = candidates[0];
+std::string NorvigSpellingCorrector::mostProbable(const std::unordered_set<std::string>& candidates) {
+    std::string best = "";
     int maxFreq = 0;
 
     for (const auto& w : candidates) {
@@ -67,61 +51,97 @@ std::string NorvigSpellingCorrector::correctWord(const std::string& word) {
     std::string lower = toLower(word);
     if (wordFrequencies.count(lower)) return lower;
 
-    std::vector<std::string> e1 = edits1(lower);
-    auto known1 = known(e1);
-    if (!known1.empty()) return mostProbable({known1.begin(), known1.end()});
+    std::unordered_set<std::string> e1 = edits1(lower);
+    std::string known1 = mostProbable({e1.begin(), e1.end()});
+    if(!known1.empty()) return known1;
 
-    std::vector<std::string> e2;
+    std::unordered_set<std::string> e2;
     for (auto& w : e1) {
         auto e2part = edits1(w);
-        e2.insert(e2.end(), e2part.begin(), e2part.end());
+        std::string known2part = mostProbable(e2part);
+        if (!known2part.empty()) e2.insert(known2part);
     }
-    auto known2 = known(e2);
-    if (!known2.empty()) return mostProbable({known2.begin(), known2.end()});
+    auto known2 = mostProbable(e2);
+    if (!known2.empty()) return known2;
 
     return word;
 }
 
 std::string NorvigSpellingCorrector::correctQuery(const std::string& query) {
-    std::stringstream ss(query);
-    std::string token;
-    std::string correctedQuery;
+    static const std::unordered_set<std::string> validKeys = {
+            "content", "path", "size", "accesstime", "mimetype"
+    };
+    static const std::unordered_set<std::string> skipValueCorrection = {
+            "size", "accesstime", "mimetype", "path"
+    };
 
-    while (ss >> token) {
-        size_t colonPos = token.find(':');
+    std::ostringstream corrected;
+    size_t pos = 0;
 
-        if (colonPos == std::string::npos) {
-            correctedQuery += correctWord(token) + " ";
-            continue;
-        }
+    while (pos < query.size()) {
+        while (pos < query.size() && std::isspace(query[pos])) ++pos;
+        if (pos >= query.size()) break;
 
-        std::string key = token.substr(0, colonPos);
-        std::string value = token.substr(colonPos + 1);
+        size_t keyStart = pos;
+        while (pos < query.size() && std::isalnum(query[pos])) ++pos;
+        std::string key = query.substr(keyStart, pos - keyStart);
 
-        std::string op, valuePart;
-        std::smatch match;
-        std::regex opRegex(R"((>=|<=|>|<)?(.*))");
-
-        if (std::regex_match(value, match, opRegex)) {
-            op = match[1];
-            valuePart = match[2];
+        std::string op;
+        if (query.substr(pos, 2) == ">=" || query.substr(pos, 2) == "<=") {
+            op = query.substr(pos, 2);
+            pos += 2;
+        } else if (query[pos] == ':' || query[pos] == '<' || query[pos] == '>' || query[pos] == '=') {
+            op = query.substr(pos, 1);
+            ++pos;
         } else {
-            valuePart = value;
+            return query;
         }
 
-        bool isQuoted = !valuePart.empty() && valuePart.front() == '"';
-        bool isNumeric = std::all_of(valuePart.begin(), valuePart.end(), ::isdigit);
+        if (validKeys.find(key) == validKeys.end()) return query;
 
-        std::string correctedValue = (isQuoted || isNumeric || valuePart.empty())
-                                     ? valuePart
-                                     : correctWord(valuePart);
+        std::string value;
+        bool hadQuotes = false;
 
-        correctedQuery += key + ":" + op + correctedValue + " ";
+        if (pos < query.size() && query[pos] == '"') {
+            hadQuotes = true;
+            ++pos;
+            size_t start = pos;
+            while (pos < query.size() && query[pos] != '"') ++pos;
+            if (pos >= query.size()) return query;
+            value = query.substr(start, pos - start);
+            ++pos;
+        } else {
+            size_t start = pos;
+            while (pos < query.size() && !std::isspace(query[pos])) ++pos;
+            value = query.substr(start, pos - start);
+        }
+
+        if (skipValueCorrection.count(key)) {
+            corrected << key << op << (hadQuotes ? "\"" + value + "\"" : value) << " ";
+        } else {
+            std::istringstream wordStream(value);
+            std::ostringstream fixed;
+            std::string word;
+            bool first = true;
+
+            while (wordStream >> word) {
+                std::string corr = correctWord(word);
+                if (corr != word) {
+                    std::cout << "[Correction] \"" << word << "\" → \"" << corr << "\"\n";
+                }
+                if (!first) fixed << " ";
+                fixed << corr;
+                first = false;
+            }
+
+            if (hadQuotes)
+                corrected << key << op << "\"" << fixed.str() << "\" ";
+            else
+                corrected << key << op << fixed.str() << " ";
+        }
     }
 
-    if (!correctedQuery.empty()) {
-        correctedQuery.pop_back();
-    }
-
-    return correctedQuery;
+    std::string result = corrected.str();
+    if (!result.empty() && result.back() == ' ') result.pop_back();
+    return result;
 }

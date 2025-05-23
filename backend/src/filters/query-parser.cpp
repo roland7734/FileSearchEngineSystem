@@ -11,6 +11,9 @@
 #include "filters/access-time-filter.hpp"
 #include <regex>
 
+const std::unordered_set<std::string> QueryParser::validKeys = {
+        "content", "path", "size", "accesstime", "mimetype"
+};
 
 
 std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& query) {
@@ -29,6 +32,8 @@ std::vector<std::unique_ptr<IFilter>> QueryParser::parse(const std::string& quer
         std::string key = query.substr(keyStart, sep - keyStart);
         key = trim(key);
         if (key.empty()) throw std::invalid_argument("Empty key in query.");
+
+        validateKey(key);
 
         char op = query[sep];
         ++sep;
@@ -106,4 +111,12 @@ std::string QueryParser::extractQuotedValue(const std::string& str) {
         return str.substr(1, str.length() - 2);
     }
     return str;
+}
+
+void QueryParser::validateKey(const std::string& key) {
+
+
+    if (validKeys.find(key) == validKeys.end()) {
+        throw std::invalid_argument("Unknown filter field in query: " + key);
+    }
 }

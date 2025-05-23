@@ -3,9 +3,36 @@
 #include <regex>
 #include <sstream>
 #include <algorithm>
+#include <nlohmann/json.hpp>
+#include <filesystem>
 
-LanguageModel::LanguageModel(const std::string& corpusPath) {
-    std::ifstream file(corpusPath);
+using json = nlohmann::json;
+
+LanguageModel::LanguageModel(const std::string& path) {
+    if (std::filesystem::path(path).extension() == ".json") {
+        loadFromJson(path);
+    } else {
+        buildFromTextFile(path);
+    }
+}
+
+void LanguageModel::loadFromJson(const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in) {
+        throw std::runtime_error("Failed to open cache file: " + filename);
+    }
+
+    json j;
+    in >> j;
+    wordFrequencies = j.get<std::unordered_map<std::string, int>>();
+}
+
+void LanguageModel::buildFromTextFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open text file: " + filename);
+    }
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string text = buffer.str();
@@ -21,8 +48,8 @@ LanguageModel::LanguageModel(const std::string& corpusPath) {
     }
 }
 
-LanguageModel& LanguageModel::getInstance(const std::string& corpusPath) {
-    static LanguageModel instance(corpusPath);
+LanguageModel& LanguageModel::getInstance(const std::string& path) {
+    static LanguageModel instance(path);
     return instance;
 }
 

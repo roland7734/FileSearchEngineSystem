@@ -23,6 +23,7 @@
 #include "controller/query-suggestions-controller.hpp"
 #include "controller/logger-controller.hpp"
 #include "spelling-corrector/language-model.hpp"
+#include "cache/cache_generator.hpp"
 #include <crow/app.h>
 #include <crow/middlewares/cors.h>
 
@@ -213,11 +214,19 @@ int main()
     MonthStatisticsService monthStatisticsService(&db);
     IObserver* searchHistory = new SearchHistory();
     IObserver* resultsHistory = new ResultsHistory(&db);
-    std::cout << "Loading big.txt..." << std::endl;
-//    auto& freqDict = LanguageModel::getInstance("big.txt").getWordFrequencies();
+
+    if (!std::filesystem::exists("big_cache.json")) {
+        CacheGenerator generator;
+        generator.generate("big.txt", "big_cache.json");
+    }
+
+    auto& freqDict = LanguageModel::getInstance("big_cache.json").getWordFrequencies();
 
     cachedSearchService->addObserver(searchHistory);
     cachedSearchService->addObserver(resultsHistory);
+
+    baseSearchService->addObserver(searchHistory);
+    baseSearchService->addObserver(resultsHistory);
 
 
     CrawlServiceController crawlServiceController(&insertService);
