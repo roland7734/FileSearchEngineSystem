@@ -6,6 +6,7 @@
 #include "spelling-corrector/language-model.hpp"
 #include "spelling-corrector/norvig-spelling-corrector.hpp"
 #include "spelling-corrector/no-correction.hpp"
+#include "widgets/widget-factory.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
@@ -95,6 +96,11 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
                 json_response["aggregates"]["language"] = languageCounts;
                 json_response["aggregates"]["size"]["small"] = smallCount;
                 json_response["aggregates"]["size"]["large"] = largeCount;
+
+                nlohmann::json widgetData = WidgetFactory::getWidgets(files, corrected);
+                json_response["widgets"] = widgetData["widgets"];
+                json_response["folders"] = widgetData["folders"];
+
 
                 res.set_header("Access-Control-Allow-Origin", "*");
                 res.set_content(json_response.dump(), "application/json");
