@@ -18,4 +18,6 @@ export interface SearchResponse {
   count: number;
   results: SearchResult[];
   aggregates: SearchAggregates;
+  widgets: string[];
+  folders: string[];
 }

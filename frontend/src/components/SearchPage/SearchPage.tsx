@@ -8,6 +8,9 @@ import { getSearchSuggestions } from "../../api/suggestions";
 import { SearchSuggestions } from "../../models/searchSuggestions";
 import SmartSearchInput from "../SmartSearchInput/SmartSearchInput";
 import Aggregates from "../Aggregates/Aggregates";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import FolderIcon from "@mui/icons-material/Folder";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -20,6 +23,8 @@ const SearchPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [strategy, setStrategy] = useState("none");
+  const [widgets, setWidgets] = useState<string[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
 
   const toggleButtons = (disable: boolean) => {
     const buttons = document.querySelectorAll("button");
@@ -56,6 +61,8 @@ const SearchPage: React.FC = () => {
       const dataSuggestions = await getSearchSuggestions();
       setResults(data.results);
       setAggregates(data.aggregates);
+      setWidgets(data.widgets || []);
+      setFolders(data.folders || []);
       setSuggestions(dataSuggestions);
       setModalMessage(
         "Search completed. Found " + data.results.length + " results."
@@ -78,6 +85,14 @@ const SearchPage: React.FC = () => {
   useEffect(() => {
     fetchSuggestions();
   }, []);
+
+  const getWidgetIcon = (widget: string) => {
+    if (widget.toLowerCase().includes("recent"))
+      return <AccessTimeIcon sx={{ color: "#1976d2", mr: 2 }} />;
+    if (widget.toLowerCase().includes("year"))
+      return <CalendarTodayIcon sx={{ color: "#1976d2", mr: 2 }} />;
+    return <FolderIcon sx={{ color: "#1976d2", mr: 2 }} />;
+  };
 
   return (
     <Box sx={{ padding: 3, textAlign: "left" }}>
@@ -115,12 +130,77 @@ const SearchPage: React.FC = () => {
           Cancel
         </Button>
       </Box>
+      {widgets.length > 0 && (
+        <Box mt={5}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Active Widgets
+          </Typography>
+          <Box display="flex" flexDirection="column" gap={2}>
+            {widgets.map((widget, index) => (
+              <Box
+                key={index}
+                display="flex"
+                alignItems="center"
+                sx={{
+                  backgroundColor: "#fefefe",
+                  borderLeft: "5px solid #1976d2",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+                  transition: "transform 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateX(4px)",
+                    backgroundColor: "#f0f8ff",
+                  },
+                }}
+              >
+                {getWidgetIcon(widget)}
+                <Typography variant="subtitle1" fontWeight="medium">
+                  {widget}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
+      {folders.length > 0 && (
+        <Box mt={5}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Most Frequent Folders
+          </Typography>
+          <Box display="flex" flexDirection="column" gap={2}>
+            {folders.map((folder, index) => (
+              <Box
+                key={index}
+                display="flex"
+                alignItems="center"
+                sx={{
+                  backgroundColor: "#fafafa",
+                  borderLeft: "5px solid #4caf50",
+                  padding: "14px 16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 3px 8px rgba(0,0,0,0.08)",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: "#f0fff4",
+                    transform: "translateX(4px)",
+                  },
+                }}
+              >
+                <FolderIcon sx={{ color: "#4caf50", marginRight: 2 }} />
+                <Typography variant="subtitle1" fontWeight="medium">
+                  {folder}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
       {results.length > 0 && aggregates && (
         <Box mt={4}>
           <Aggregates aggregates={aggregates} />
         </Box>
       )}
-
       <Box mt={4}>
         {results.map((r, i) => (
           <SearchCard key={i} path={r.path} preview={r.preview} />
