@@ -1,7 +1,11 @@
 #include "filters/access-time-filter.hpp"
 #include <regex>
 
-AccessTimeFilter::AccessTimeFilter(const std::string& input) : rawValue(input) {}
+AccessTimeFilter::AccessTimeFilter(const std::string& input) : rawValue(input) {
+    char op = rawValue[0];
+    std::string value = (op == '>' || op == '<' || op == '=') ? rawValue.substr(1) : rawValue;
+    normalizeDate(value);
+}
 
 std::string AccessTimeFilter::getKeyword() const {
     return rawValue;
