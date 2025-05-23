@@ -7,6 +7,7 @@
 #include "spelling-corrector/norvig-spelling-corrector.hpp"
 #include "spelling-corrector/no-correction.hpp"
 #include "widgets/widget-factory.hpp"
+#include "query-widget-analyzer/query-widget-factory.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
@@ -101,6 +102,8 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
                 json_response["widgets"] = widgetData["widgets"];
                 json_response["folders"] = widgetData["folders"];
 
+                nlohmann::json queryWidget = QueryWidgetFactory::getWidgets(corrected);
+                json_response["query_widgets"] = queryWidget["query_widgets"];
 
                 res.set_header("Access-Control-Allow-Origin", "*");
                 res.set_content(json_response.dump(), "application/json");
