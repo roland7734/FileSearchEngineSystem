@@ -210,6 +210,7 @@ int main()
     InsertService insertService(&db);
 
     UsageStatsService usageStatsService(&db);
+    MonthStatisticsService monthStatisticsService(&db);
     IObserver* searchHistory = new SearchHistory();
     IObserver* resultsHistory = new ResultsHistory(&db);
     std::cout << "Loading big.txt..." << std::endl;
@@ -220,7 +221,7 @@ int main()
 
 
     CrawlServiceController crawlServiceController(&insertService);
-    SearchServiceController searchServiceController(cachedSearchService.get());
+    SearchServiceController searchServiceController(cachedSearchService.get(), &monthStatisticsService);
     FileOpenController fileOpenController(&usageStatsService);
     QuerySuggestionsController querySuggestionsController(dynamic_cast<SearchHistory*>(searchHistory));
     LoggerController loggerController;

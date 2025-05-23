@@ -8,10 +8,12 @@
 #include "spelling-corrector/no-correction.hpp"
 #include "widgets/widget-factory.hpp"
 #include "query-widget-analyzer/query-widget-factory.hpp"
+#include "service/month-statistics-service.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 
-SearchServiceController::SearchServiceController(CachedSearchService* searchService) : searchService(searchService) {}
+SearchServiceController::SearchServiceController(CachedSearchService* searchService, MonthStatisticsService *statsService) :
+searchService(searchService), statsService(statsService) {}
 
 void SearchServiceController::registerRoutes(httplib::Server& server) {
     server.Options("/search", [](const httplib::Request& req, httplib::Response& res) {
@@ -101,6 +103,21 @@ void SearchServiceController::registerRoutes(httplib::Server& server) {
                 nlohmann::json widgetData = WidgetFactory::getWidgets(files, corrected);
                 json_response["widgets"] = widgetData["widgets"];
                 json_response["folders"] = widgetData["folders"];
+
+                if (widgetData.contains("widgets") && widgetData["widgets"].is_array()) {
+                    for (const auto& widget : widgetData["widgets"]) {
+                        std::string widgetStr = widget.get<std::string>();
+                        if (widgetStr.rfind("Year = ", 0) == 0) {
+                            try {
+                                int year = std::stoi(widgetStr.substr(7));
+                                nlohmann::json monthCounts = statsService->getFileCountsByMonthForYear(year);
+                                json_response["monthly_counts"] = monthCounts;
+                            } catch (const std::exception& e) {
+                                std::cerr << "[Invalid Year Widget] " << widget << ": " << e.what() << "\n";
+                            }
+                        }
+                    }
+                }
 
                 nlohmann::json queryWidget = QueryWidgetFactory::getWidgets(corrected);
                 json_response["query_widgets"] = queryWidget["query_widgets"];
