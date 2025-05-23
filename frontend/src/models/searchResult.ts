@@ -20,4 +20,5 @@ export interface SearchResponse {
   aggregates: SearchAggregates;
   widgets: string[];
   folders: string[];
+  query_widgets: string[];
 }

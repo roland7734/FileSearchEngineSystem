@@ -11,6 +11,8 @@ import Aggregates from "../Aggregates/Aggregates";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FolderIcon from "@mui/icons-material/Folder";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import SchoolIcon from "@mui/icons-material/School";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -25,6 +27,7 @@ const SearchPage: React.FC = () => {
   const [strategy, setStrategy] = useState("none");
   const [widgets, setWidgets] = useState<string[]>([]);
   const [folders, setFolders] = useState<string[]>([]);
+  const [queryWidgets, setQueryWidgets] = useState<string[]>([]);
 
   const toggleButtons = (disable: boolean) => {
     const buttons = document.querySelectorAll("button");
@@ -63,6 +66,7 @@ const SearchPage: React.FC = () => {
       setAggregates(data.aggregates);
       setWidgets(data.widgets || []);
       setFolders(data.folders || []);
+      setQueryWidgets(data.query_widgets || []);
       setSuggestions(dataSuggestions);
       setModalMessage(
         "Search completed. Found " + data.results.length + " results."
@@ -92,6 +96,18 @@ const SearchPage: React.FC = () => {
     if (widget.toLowerCase().includes("year"))
       return <CalendarTodayIcon sx={{ color: "#1976d2", mr: 2 }} />;
     return <FolderIcon sx={{ color: "#1976d2", mr: 2 }} />;
+  };
+
+  const getQueryWidgetIcon = (widget: string) => {
+    const lower = widget.toLowerCase();
+
+    if (lower.includes("university"))
+      return <SchoolIcon sx={{ color: "#ffb300", mr: 2 }} />;
+
+    if (lower.includes("file"))
+      return <InsertDriveFileIcon sx={{ color: "#ffb300", mr: 2 }} />;
+
+    return <FolderIcon sx={{ color: "#ffb300", mr: 2 }} />;
   };
 
   return (
@@ -130,6 +146,40 @@ const SearchPage: React.FC = () => {
           Cancel
         </Button>
       </Box>
+      {queryWidgets.length > 0 && (
+        <Box mt={5}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Query Widgets
+          </Typography>
+          <Box display="flex" flexDirection="column" gap={2}>
+            {queryWidgets.map((widget, index) => (
+              <Box
+                key={index}
+                display="flex"
+                alignItems="center"
+                sx={{
+                  backgroundColor: "#fff8e1",
+                  borderLeft: "5px solid #ffb300",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+                  transition: "transform 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateX(4px)",
+                    backgroundColor: "#fff3cd",
+                  },
+                }}
+              >
+                {getQueryWidgetIcon(widget)}
+                <Typography variant="subtitle1" fontWeight="medium">
+                  {widget}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
+
       {widgets.length > 0 && (
         <Box mt={5}>
           <Typography variant="h5" fontWeight="bold" gutterBottom>
